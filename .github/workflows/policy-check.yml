@@ -1,0 +1,41 @@
+name: Policy Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  opa-tests:
+    name: OPA Policy Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install OPA
+        run: |
+          curl -sL -o opa https://openpolicyagent.org/downloads/v1.1.0/opa_linux_amd64_static
+          chmod +x opa && sudo mv opa /usr/local/bin/
+
+      - name: Run Policy Tests
+        run: opa test policies/opa/ -v
+
+      - name: Verify Deployment Policy Logic
+        run: |
+          echo '{"environment":"production","approval_status":"pending"}' > /tmp/prod.json
+          opa eval -d policies/opa/ -i /tmp/prod.json "data.deployment.approval.allow" | grep -q "false"
+          echo "✅ Production correctly blocked"
+
+          echo '{"environment":"dev"}' > /tmp/dev.json
+          opa eval -d policies/opa/ -i /tmp/dev.json "data.deployment.approval.allow" | grep -q "true"
+          echo "✅ Dev correctly allowed"
+
+      - name: Secret Scan
+        run: |
+          bun .mise/tasks/scan > /tmp/file_scan.json
+          RESULT=$(opa eval -d policies/opa/secret-scanning.rego -i /tmp/file_scan.json "data.security.secrets.violation")
+          if echo "$RESULT" | grep -q '"msg"'; then
+            echo "❌ Secrets detected" && exit 1
+          fi
+          echo "✅ No secrets detected"

@@ -1,0 +1,40 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/backstage/backstage
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 7007
+
+ingress:
+  enabled: false
+  className: ""
+  host: ""
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: backstage
+    database: backstage
+
+externalPostgresql:
+  host: ""
+  port: 5432
+  username: backstage
+  database: backstage
+  existingSecret: ""
+
+serviceAccount:
+  create: true
+  annotations: {}

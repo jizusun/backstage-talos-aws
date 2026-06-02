@@ -1,0 +1,113 @@
+name: Infrastructure Deployment
+
+on:
+  push:
+    branches: [main]
+    paths: ['terraform/**']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options: [dev, test, perf, staging, production]
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    name: Validate & Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+
+      - name: Format Check
+        run: tofu fmt -check -recursive
+        working-directory: terraform/
+
+      - name: Validate
+        run: |
+          tofu init -backend=false
+          tofu validate
+        working-directory: terraform/
+
+      - name: OPA Policy Test
+        run: opa test policies/opa/ -v
+
+  plan:
+    name: Plan (${{ github.event.inputs.environment || 'dev' }})
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      ENV: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Plan
+        run: |
+          tofu init
+          tofu workspace select -or-create ${{ env.ENV }}
+          tofu plan -var-file=environments/${{ env.ENV }}.tfvars -var="db_password=${{ secrets.DB_PASSWORD }}" -out=tfplan
+          tofu show -json tfplan > tfplan.json
+        working-directory: terraform/
+
+      - name: OPA Compliance Check
+        run: opa eval -d policies/opa/terraform-compliance.rego -i terraform/tfplan.json "data.terraform.compliance.violation" --fail-defined
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ env.ENV }}
+          path: terraform/tfplan
+
+  approval:
+    name: Approval Gate
+    needs: plan
+    if: contains(fromJSON('["staging","production"]'), github.event.inputs.environment)
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}-approval
+    steps:
+      - run: echo "✅ Approved for ${{ github.event.inputs.environment }}"
+
+  apply:
+    name: Apply (${{ github.event.inputs.environment || 'dev' }})
+    needs: [plan, approval]
+    if: |
+      always() &&
+      needs.plan.result == 'success' &&
+      (needs.approval.result == 'success' || needs.approval.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    env:
+      ENV: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ env.ENV }}
+          path: terraform/
+
+      - name: Apply
+        run: |
+          tofu init
+          tofu workspace select ${{ env.ENV }}
+          tofu apply tfplan
+        working-directory: terraform/
+
+      - name: Validate Cluster
+        run: talosctl health --nodes $(tofu -chdir=terraform output -raw control_plane_ip)

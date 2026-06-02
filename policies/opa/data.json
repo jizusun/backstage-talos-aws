@@ -1,0 +1,6 @@
+{
+  "authorized_approvers": {
+    "staging": ["platform-lead", "security-lead", "engineering-manager"],
+    "production": ["platform-lead", "security-lead", "vp-engineering"]
+  }
+}

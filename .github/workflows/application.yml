@@ -1,0 +1,96 @@
+name: Application Deployment
+
+on:
+  push:
+    branches: [main]
+    paths: ['charts/**', 'backstage/**']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options: [dev, test, perf, staging, production]
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build:
+    name: Build & Scan
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+
+      - name: Build & Push
+        run: |
+          IMAGE=${{ steps.ecr.outputs.registry }}/backstage-${{ github.event.inputs.environment || 'dev' }}/backstage
+          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push $IMAGE --all-tags
+
+      - name: Trivy Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.ecr.outputs.registry }}/backstage-${{ github.event.inputs.environment || 'dev' }}/backstage:${{ github.sha }}
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+
+  test:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+
+      - name: Secret Scan
+        run: |
+          mise run scan > /tmp/file_scan.json
+          RESULT=$(opa eval -d policies/opa/secret-scanning.rego -i /tmp/file_scan.json "data.security.secrets.violation" 2>&1)
+          if echo "$RESULT" | grep -q '"msg"'; then
+            echo "❌ Secrets detected" && exit 1
+          fi
+          echo "✅ No secrets"
+
+      - name: Helm Lint
+        run: helm lint charts/backstage/
+
+  deploy:
+    name: Deploy (${{ github.event.inputs.environment || 'dev' }})
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    env:
+      ENV: ${{ github.event.inputs.environment || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Kubeconfig
+        run: |
+          aws s3 cp s3://backstage-platform-tfstate/kubeconfig/${{ env.ENV }}/kubeconfig ./kubeconfig
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+
+      - name: Helm Deploy
+        run: |
+          helm upgrade --install backstage charts/backstage/ \
+            --values charts/backstage/values/${{ env.ENV }}.yaml \
+            --set image.tag=${{ needs.build.outputs.image_tag }} \
+            --wait --timeout 10m
+
+      - name: Health Check
+        run: kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=backstage --timeout=300s

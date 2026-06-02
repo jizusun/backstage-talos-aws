@@ -1,0 +1,10 @@
+#!/usr/bin/env bun
+//MISE description="Generate OpenTofu plan for an environment"
+import { $ } from "bun";
+
+const env = Bun.argv[2] || "dev";
+
+console.log(`Planning: ${env}`);
+await $`tofu -chdir=terraform init`;
+await $`tofu -chdir=terraform workspace select -or-create ${env}`;
+await $`tofu -chdir=terraform plan -var-file=environments/${env}.tfvars -out=plans/${env}.plan`;

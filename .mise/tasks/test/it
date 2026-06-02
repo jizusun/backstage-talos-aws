@@ -1,0 +1,38 @@
+#!/usr/bin/env bun
+//MISE description="Integration tests: Kind deploy, OPA eval, secret scan"
+//MISE depends=["test:ut"]
+import { $ } from "bun";
+
+console.log("═══ Integration Tests ═══");
+
+console.log("--- Kind + Helm dry-run ---");
+await $`kind delete cluster --name backstage-test`.nothrow().quiet();
+await $`kind create cluster --name backstage-test --wait 60s`;
+await $`helm install backstage charts/backstage/ --values charts/backstage/values/local.yaml --kube-context kind-backstage-test --dry-run`.quiet();
+await $`kind delete cluster --name backstage-test`;
+console.log("✅ Kind dry-run passed");
+
+console.log("\n--- OPA policy evaluation ---");
+const prodInput = JSON.stringify({environment: "production", approval_status: "pending"});
+await Bun.write("/tmp/prod_input.json", prodInput);
+const prodResult = await $`opa eval -d policies/opa/ -i /tmp/prod_input.json "data.deployment.approval.allow"`.text();
+if (!prodResult.includes("false")) throw new Error("Production should be blocked");
+console.log("✅ Production blocked without approval");
+
+const devInput = JSON.stringify({environment: "dev"});
+await Bun.write("/tmp/dev_input.json", devInput);
+const devResult = await $`opa eval -d policies/opa/ -i /tmp/dev_input.json "data.deployment.approval.allow"`.text();
+if (!devResult.includes("true")) throw new Error("Dev should be allowed");
+console.log("✅ Dev allowed without approval");
+
+console.log("\n--- Secret scan ---");
+const scanJson = await $`mise run scan`.text();
+await Bun.write("/tmp/file_scan.json", scanJson);
+const scanResult = await $`opa eval -d policies/opa/secret-scanning.rego -i /tmp/file_scan.json "data.security.secrets.violation"`.text();
+if (scanResult.includes('"msg"')) {
+  console.error("❌ Secrets detected");
+  process.exit(1);
+}
+console.log("✅ No secrets detected");
+
+console.log("\n✅ Integration tests passed");

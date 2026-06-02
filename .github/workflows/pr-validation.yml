@@ -1,0 +1,101 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: "Layer 1: Unit Tests"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: "1.9.0"
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install OPA
+        run: |
+          curl -sL -o opa https://openpolicyagent.org/downloads/v1.1.0/opa_linux_amd64_static
+          chmod +x opa && sudo mv opa /usr/local/bin/
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "v3.16.3"
+
+      - name: OpenTofu Init & Validate
+        working-directory: terraform/
+        run: |
+          tofu init -backend=false
+          tofu fmt -check -recursive
+          tofu validate
+
+      - name: OPA Policy Tests
+        run: opa test policies/opa/ -v
+
+      - name: Helm Lint & Template
+        run: |
+          helm lint charts/backstage/
+          helm template backstage charts/backstage/ --values charts/backstage/values/local.yaml > /dev/null
+
+  integration-tests:
+    name: "Layer 2: Integration Tests"
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: "1.9.0"
+
+      - uses: oven-sh/setup-bun@v2
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: "v3.16.3"
+
+      - name: Install OPA
+        run: |
+          curl -sL -o opa https://openpolicyagent.org/downloads/v1.1.0/opa_linux_amd64_static
+          chmod +x opa && sudo mv opa /usr/local/bin/
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.4"
+
+      - name: Terratest
+        run: go test -v -timeout 5m
+        working-directory: terraform/test/
+
+      - name: Kind + Helm Dry-Run
+        run: |
+          curl -sL -o kind https://kind.sigs.k8s.io/dl/v0.25.0/kind-linux-amd64
+          chmod +x kind && sudo mv kind /usr/local/bin/
+          kind create cluster --name backstage-test --wait 60s
+          helm install backstage charts/backstage/ --values charts/backstage/values/local.yaml \
+            --kube-context kind-backstage-test --dry-run > /dev/null
+          echo "✅ Helm dry-run on Kind passed"
+          kind delete cluster --name backstage-test
+
+      - name: OPA Approval Policy
+        run: |
+          echo '{"environment":"production","approval_status":"pending"}' > /tmp/prod.json
+          opa eval -d policies/opa/ -i /tmp/prod.json "data.deployment.approval.allow" | grep -q "false"
+          echo "✅ Production blocked without approval"
+          echo '{"environment":"dev"}' > /tmp/dev.json
+          opa eval -d policies/opa/ -i /tmp/dev.json "data.deployment.approval.allow" | grep -q "true"
+          echo "✅ Dev allowed without approval"
+
+      - name: Secret Scan
+        run: |
+          bun .mise/tasks/scan > /tmp/file_scan.json
+          RESULT=$(opa eval -d policies/opa/secret-scanning.rego -i /tmp/file_scan.json "data.security.secrets.violation")
+          if echo "$RESULT" | grep -q '"msg"'; then
+            echo "❌ Secrets detected" && exit 1
+          fi
+          echo "✅ No secrets detected"

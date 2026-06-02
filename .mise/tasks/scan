@@ -1,0 +1,29 @@
+#!/usr/bin/env bun
+//MISE description="Generate OPA input JSON for secret scanning"
+import { readdir, readFile } from "fs/promises";
+import { join, extname, relative } from "path";
+
+const SCAN_EXTENSIONS = new Set([".tf", ".yaml", ".yml", ".json", ".ts", ".js", ".env", ".toml"]);
+const SKIP_DIRS = new Set([".git", "node_modules", ".terraform", "raw", ".mise"]);
+
+const root = join(import.meta.dir, "../..");
+
+async function* walk(dir: string): AsyncGenerator<string> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (SKIP_DIRS.has(entry.name)) continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) yield* walk(path);
+    else if (SCAN_EXTENSIONS.has(extname(entry.name))) yield path;
+  }
+}
+
+const files: { path: string; content: string }[] = [];
+for await (const filepath of walk(root)) {
+  try {
+    const content = await readFile(filepath, "utf-8");
+    files.push({ path: relative(root, filepath), content });
+  } catch {}
+}
+
+console.log(JSON.stringify({ files }));

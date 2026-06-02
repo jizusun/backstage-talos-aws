@@ -1,0 +1,28 @@
+#!/usr/bin/env bun
+//MISE description="Static analysis: tofu validate, tflint, trivy, opa test, helm lint"
+import { $ } from "bun";
+
+console.log("═══ Lint ═══");
+
+console.log("--- tofu fmt ---");
+await $`tofu -chdir=terraform fmt -check -recursive`;
+
+console.log("--- tofu validate ---");
+await $`tofu -chdir=terraform init -backend=false`.quiet();
+await $`tofu -chdir=terraform validate`;
+
+console.log("--- tflint ---");
+await $`tflint --chdir=terraform --init`.quiet();
+await $`tflint --chdir=terraform --recursive --minimum-failure-severity=error`;
+
+console.log("--- trivy ---");
+await $`trivy config terraform/ --severity HIGH,CRITICAL --exit-code 0`;
+
+console.log("--- opa test ---");
+await $`opa test policies/opa/ -v`;
+
+console.log("--- helm lint ---");
+await $`helm lint charts/backstage/`;
+await $`helm template backstage charts/backstage/ --values charts/backstage/values/local.yaml`.quiet();
+
+console.log("\n✅ Lint passed");

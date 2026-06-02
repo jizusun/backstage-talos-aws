@@ -1,0 +1,8 @@
+#!/usr/bin/env bun
+//MISE description="Unit tests: Terratest module validation"
+//MISE depends=["lint"]
+import { $ } from "bun";
+
+console.log("═══ Unit Tests (Terratest) ═══");
+await $`cd terraform/test && go test -v -timeout 5m`;
+console.log("\n✅ Unit tests passed");

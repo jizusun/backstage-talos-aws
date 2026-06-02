@@ -1,0 +1,7 @@
+#!/usr/bin/env bun
+//MISE description="Remove local Kind clusters"
+import { $ } from "bun";
+
+await $`kind delete cluster --name backstage-dev`.nothrow();
+await $`kind delete cluster --name backstage-test`.nothrow();
+console.log("✅ Cleaned");

@@ -1,0 +1,9 @@
+#!/usr/bin/env bun
+//MISE description="Start local dev environment (Kind + PostgreSQL + Backstage)"
+import { $ } from "bun";
+
+await $`kind create cluster --name backstage-dev --wait 60s`;
+await $`helm repo add bitnami https://charts.bitnami.com/bitnami`;
+await $`helm install postgresql bitnami/postgresql --set auth.postgresPassword=backstage --set auth.database=backstage --wait`;
+await $`helm install backstage charts/backstage/ --values charts/backstage/values/local.yaml --wait`;
+console.log("✅ Dev ready — kubectl port-forward svc/backstage 3000:3000");

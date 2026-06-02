@@ -1,0 +1,34 @@
+# OpenTofu
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+plans/
+crash.log
+terraform/modules/**/.terraform.lock.hcl
+
+# Secrets
+*.pem
+*.key
+kubeconfig
+talosconfig
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+
+# Build
+dist/
+build/
+
+# Raw research files
+raw/

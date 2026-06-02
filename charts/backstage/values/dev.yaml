@@ -1,0 +1,25 @@
+replicaCount: 1
+
+image:
+  repository: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/backstage-dev/backstage
+  tag: latest
+
+postgresql:
+  enabled: false
+
+externalPostgresql:
+  host: backstage-dev-backstage.xxxxx.us-east-1.rds.amazonaws.com
+  port: 5432
+  username: backstage
+  database: backstage
+  existingSecret: backstage-db-credentials
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/backstage-dev-backstage
+
+ingress:
+  enabled: true
+  className: nginx
+  host: backstage-dev.example.com
