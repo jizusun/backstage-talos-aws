@@ -115,7 +115,7 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 │   ├── modules/               # Reusable infrastructure modules
 │   ├── environments/          # Per-environment tfvars
 │   ├── test/                  # Terratest (Go)
-│   └── versions.tf            # Provider requirements + backend
+│   └── versions.tf           # Provider requirements + backend
 ├── charts/backstage/          # Helm chart + committed dependencies
 ├── policies/opa/              # Rego policies + tests + data
 ├── .github/workflows/         # CI/CD pipelines
@@ -131,3 +131,43 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 - **GitHub Actions** over Harness: free, native Git integration; Harness is optional addon
 - **Kind** for local testing: fast, lightweight, sufficient for Helm validation
 - **No FakeCloud/LocalStack**: doesn't support EC2/VPC APIs needed for our modules
+
+## Guidance for Future Work
+
+### Before Adding Dependencies
+
+- Check if the tool is available via `mise registry | grep <tool>` before manual install
+- Verify download URLs still exist — upstream projects remove old releases (e.g., helm 3.16.3 was removed)
+- Pin exact versions, never use `latest` in `mise.toml`
+- Run `mise lock` after any change — the lockfile ensures reproducibility across platforms
+
+### Before Adding AWS Emulators
+
+- `tofu validate` and `tofu plan -backend=false` work **offline** — no emulator needed for syntax/structure
+- `tofu test` with `mock_provider` covers logic assertions without any AWS endpoint
+- AWS emulators (kumo, moto, etc.) are only useful for **apply/destroy cycle testing**
+- Most emulators don't support all services — verify your module's APIs are covered before investing time
+- Real AWS ($50/month dev cluster) gives 100% confidence — often cheaper than debugging emulator gaps
+
+### When Writing CI Workflows
+
+- Always validate locally first (`mise run lint && mise run test:it`) before pushing to see CI results
+- `mise-action` installs **all** tools in `mise.toml` — if one fails, the whole step fails
+- Check actual CI error logs before assuming which tool caused the failure
+- Commit chart dependencies and lock files — don't rely on network fetches during CI
+- Use `concurrency` groups to cancel stale runs on the same branch
+
+### When Debugging CI Failures
+
+- Use `gh run view <id> --log` to get full logs locally
+- Search for the actual error: `grep -i "error\|fail" | grep -v "set-failed"`
+- Common causes: version 404 (upstream removed), network timeout, missing secrets
+- If `mise-action` fails: check which specific tool install errored, not just "mise failed"
+
+### When Writing Tests
+
+- Every policy file needs a `_test.rego` — untested policies are untrustworthy
+- OPA tests must cover both **allow** and **deny** cases
+- Prefer `tofu test` over Terratest for logic — it's faster and native
+- Use Bun's `$` API carefully with pipes — write to files instead of piping stdin in Bun shell
+- Integration tests should be idempotent — clean up Kind clusters, kill background processes
