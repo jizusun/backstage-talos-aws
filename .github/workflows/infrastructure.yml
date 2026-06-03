@@ -14,7 +14,6 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  MISE_DISABLE_TOOLS: talosctl
 
 jobs:
   test:
@@ -108,4 +107,4 @@ jobs:
           tofu apply tfplan
 
       - name: Validate Cluster
-        run: talosctl health --nodes $(tofu -chdir=terraform output -raw control_plane_ip)
+        run: talosctl health --nodes "$(tofu -chdir=terraform output -raw control_plane_ip)"
