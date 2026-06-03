@@ -81,6 +81,13 @@ mise run test:e2e   # Layer 3: real AWS (needs credentials)
 | OPA eval | 2 | Approval gates, secret scanning |
 | `tofu apply` (AWS) | 3 | Real infrastructure creation |
 
+### Terratest vs `tofu test`
+
+- **`tofu test`** for logic assertions (variable validation, conditional resources, planned values)
+- **Terratest** for structural validation (init/validate) and future apply/destroy integration tests
+- Do **not** duplicate logic tests in Terratest — use `tofu test` with `mock_provider` instead
+- Terratest needs AWS only for apply/destroy tests; our current tests run without credentials
+
 ## CI/CD
 
 ### GitHub Actions
