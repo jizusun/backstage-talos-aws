@@ -43,6 +43,8 @@ jobs:
     name: "Layer 2: Integration Tests"
     needs: unit-tests
     runs-on: ubuntu-latest
+    env:
+      MISE_DISABLE_TOOLS: talosctl,tflint,trivy
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
