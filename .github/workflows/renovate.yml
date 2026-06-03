@@ -1,20 +1,27 @@
 name: Renovate
-
 on:
-  pull_request:
-    branches: [main]
   schedule:
-    - cron: '0 3 * * 1' # Weekly Monday 3am UTC
+    - cron: "0 3 * * 1"
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   renovate:
     name: Renovate
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
 
       - uses: renovatebot/github-action@v41.0.4
         with:
-          configurationFile: renovate.json
+          configurationFile: .github/renovate-config.js
           token: ${{ secrets.RENOVATE_TOKEN || secrets.GITHUB_TOKEN }}
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          LOG_LEVEL: info
+          RENOVATE_BASE_BRANCHES: ${{ github.event_name == 'pull_request' && github.head_ref || '' }}
