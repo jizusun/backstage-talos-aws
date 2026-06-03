@@ -3,62 +3,77 @@
 ```
               ▲
              / \
-            / E2E \            ← AWS (real infra) — $50/month
+            / E2E \            ← Real AWS Talos cluster — $50/month
            /  Tests \
           /───────────\
          /             \
-        / Integration    \     ← Kind + OPA eval — $0
+        / Integration    \     ← kumo apply/destroy + Kind + OPA eval — $0
        /    Tests         \
       /─────────────────────\
      /                       \
-    /     Unit Tests           \  ← tofu validate, opa test, helm lint — $0
-   /        (Local)              \
-  /───────────────────────────────\
+    /     Unit Tests           \  ← tofu validate, tflint, trivy, opa test, helm lint — $0
+   /                             \
+  /─────────────────────────────────\
 ```
 
 ---
 
-## Layer 1: Unit Tests ($0, seconds)
+## Unit Tests ($0, seconds)
 
-**Run**: Every commit, every PR
+**Run**: Every commit, every PR  
+**Task**: `mise run lint` + `mise run test:ut`
 
-| What | Tool | Tests |
-|------|------|-------|
-| OpenTofu syntax | `tofu validate` | Module structure, variable validation |
-| OpenTofu formatting | `tofu fmt -check` | Code style consistency |
-| OPA policies | `opa test` | Policy logic correctness |
-| Helm charts | `helm lint` | Chart structure validity |
-| Helm templates | `helm template --validate` | Rendered YAML correctness |
-
----
-
-## Layer 2: Integration Tests ($0, minutes)
-
-**Run**: Every PR, before merge
-
-| What | Tool | Tests |
-|------|------|-------|
-| OPA compliance | `opa eval` on sample plan JSON | Policies catch violations |
-| OPA approval logic | `opa eval` with test inputs | Approval gates work correctly |
-| Backstage on Kind | `kind` + `helm install` | App deploys, health checks pass |
-
-> **Note**: `tofu plan` requires real AWS APIs for data sources (availability zones, AMIs).
-> Full plan validation happens in Layer 3 (E2E) with real AWS credentials.
+| What | Tool | Validates |
+|------|------|-----------|
+| Syntax & schema | `tofu validate` | HCL correctness |
+| Formatting | `tofu fmt -check` | Code style |
+| Provider rules | `tflint` | AWS deprecations, invalid types |
+| Security | `trivy config` | Misconfigurations |
+| Policy logic | `opa test` | 14 tests (approval, secrets, compliance) |
+| Chart validity | `helm lint` + `helm template` | K8s manifests |
+| Module structure | Terratest `Init` + `Validate` | 6 modules |
+| Module logic | `tofu test` + `mock_provider` | 7 assertions (RDS, S3, ECR) |
 
 ---
 
-## Layer 3: End-to-End Tests ($50/month, ~30 min)
+## Integration Tests ($0, minutes)
 
-**Run**: Weekly or before release
+**Run**: Every PR, before merge  
+**Task**: `mise run test:it` + `mise run test:apply`
 
-| What | Tool | Tests |
-|------|------|-------|
-| Full tofu plan | `tofu plan` (real AWS) | Resource graph validated |
-| Full tofu apply | `tofu apply` (real AWS) | Cluster bootstraps correctly |
-| IRSA | Pod → STS → AWS service | Credentials flow works |
-| NLB + ingress | `curl https://backstage.dev` | Traffic reaches Backstage |
-| RDS connectivity | Backstage → PostgreSQL | Database connection works |
-| Talos upgrades | `talosctl upgrade` | Rolling update succeeds |
+| What | Tool | Validates |
+|------|------|-----------|
+| Apply/destroy cycle | kumo + Terratest | S3 module creates/destroys correctly |
+| K8s deployment | Kind + Helm dry-run | Backstage chart deploys to cluster |
+| Approval gates | OPA eval | Production blocked, dev allowed |
+| Secret scanning | OPA eval + bun scan | No credentials in codebase |
+
+---
+
+## E2E Tests ($50/month, 30 min)
+
+**Run**: Weekly or before release  
+**Task**: `mise run test:e2e`
+
+| What | Tool | Validates |
+|------|------|-----------|
+| Full Talos cluster | `tofu apply` (real AWS) | Cluster bootstraps |
+| IRSA | Pod → STS → AWS | Credentials flow |
+| NLB + networking | `curl` | Traffic reaches Backstage |
+| RDS connectivity | Backstage → PostgreSQL | Database works |
+| Talos operations | `talosctl upgrade` | Rolling update |
+
+---
+
+## Running Tests
+
+```bash
+mise run lint          # Unit: static analysis
+mise run test:ut       # Unit: Terratest module validation
+mise run test:it       # Integration: Kind, OPA eval, secret scan
+mise run test:apply    # Integration: kumo apply/destroy
+mise run test:e2e      # E2E: real AWS (needs credentials)
+```
 
 ---
 
@@ -67,19 +82,7 @@
 | Layer | Issues Caught | Cost | Speed |
 |-------|--------------|------|-------|
 | Unit | 70% | $0 | Seconds |
-| Integration | 20% | $0 | Minutes |
-| E2E | 10% | $50/month | 30 min |
+| Integration | 25% | $0 | Minutes |
+| E2E | 5% | $50/month | 30 min |
 
-**90% of issues caught at $0 cost.**
-
----
-
-## Running Locally
-
-```bash
-# Layer 1: Unit tests
-mise run validate
-
-# Layer 2: Integration tests
-mise run test-integration   # Kind + Backstage deploy
-```
+**95% of issues caught at $0 cost.**

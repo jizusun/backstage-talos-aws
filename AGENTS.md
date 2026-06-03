@@ -61,8 +61,9 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 
 ```bash
 mise run lint       # Layer 1: static analysis
-mise run test:ut    # Layer 1+: Terratest module validation
+mise run test:ut    # Layer 1: Terratest module validation
 mise run test:it    # Layer 2: Kind + OPA + secret scan (depends on lint + test:ut)
+mise run test:apply # Layer 2: kumo apply/destroy
 mise run test:e2e   # Layer 3: real AWS (needs credentials)
 ```
 

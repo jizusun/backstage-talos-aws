@@ -9,13 +9,13 @@ env:
 
 jobs:
   unit-tests:
-    name: "Layer 1: Unit Tests"
+    name: "Unit Tests"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
-      - name: OpenTofu Init & Validate
+      - name: OpenTofu Validate
         working-directory: terraform/
         run: |
           tofu init -backend=false
@@ -39,19 +39,25 @@ jobs:
           helm lint charts/backstage/
           helm template backstage charts/backstage/ --values charts/backstage/values/local.yaml > /dev/null
 
+      - name: Terratest (init/validate)
+        run: go test -v -timeout 5m -run "Validation"
+        working-directory: terraform/test/
+
   integration-tests:
-    name: "Layer 2: Integration Tests"
+    name: "Integration Tests"
     needs: unit-tests
     runs-on: ubuntu-latest
-    env:
-      MISE_DISABLE_TOOLS: talosctl,tflint,trivy
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
-      - name: Terratest
-        run: go test -v -timeout 5m
-        working-directory: terraform/test/
+      - name: Kumo Apply/Destroy (S3)
+        run: |
+          kumo &
+          sleep 2
+          cd terraform/test && KUMO=1 go test -v -run TestS3ApplyDestroy -timeout 5m
+          kill %1 || true
+          echo "✅ Apply/destroy passed"
 
       - name: Kind + Helm Dry-Run
         run: |
@@ -61,7 +67,7 @@ jobs:
           echo "✅ Helm dry-run on Kind passed"
           kind delete cluster --name backstage-test
 
-      - name: OPA Approval Policy
+      - name: OPA Policy Evaluation
         run: |
           echo '{"environment":"production","approval_status":"pending"}' > /tmp/prod.json
           opa eval -d policies/opa/ -i /tmp/prod.json "data.deployment.approval.allow" | grep -q "false"
