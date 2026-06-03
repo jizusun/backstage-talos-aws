@@ -6,8 +6,8 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 
 ### Rules
 
-1. **Always use `mise exec --` to run any tool** — never call binaries directly
-2. **Always use `mise run <task>`** to run project tasks — never raw shell scripts
+1. **Always use `mise exec --` to run any tool** (tofu, helm, kubectl, opa, kind, talosctl, fakecloud)
+2. **Always use `mise run <task>`** to run project tasks instead of raw shell scripts
 3. **Never install tools globally** — all tools are managed via `mise.toml`
 4. **Add new tools to `mise.toml`** using `mise use <tool>@<version> --pin`
 5. **Use `[env]` section in `mise.toml`** for environment variables, not `.env` files
