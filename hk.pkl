@@ -1,0 +1,37 @@
+amends "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Config.pkl"
+
+hooks {
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    steps {
+      ["tofu-fmt"] {
+        glob = List("*.tf")
+        check = "tofu -chdir=terraform fmt -check -recursive"
+        fix = "tofu -chdir=terraform fmt -recursive"
+      }
+      ["tofu-validate"] {
+        glob = List("*.tf")
+        check = "tofu -chdir=terraform validate"
+      }
+      ["actionlint"] {
+        glob = List(".github/workflows/*.yml")
+        check = "actionlint"
+      }
+      ["opa-test"] {
+        glob = List("*.rego")
+        check = "opa test policies/opa/"
+      }
+      ["helm-lint"] {
+        glob = List("charts/**/*")
+        check = "helm lint charts/backstage/"
+      }
+      ["gitleaks"] {
+        check = "gitleaks detect --source . --no-git -c .gitleaks.toml --redact"
+      }
+      ["editorconfig"] {
+        check = "ec"
+      }
+    }
+  }
+}

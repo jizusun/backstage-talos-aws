@@ -151,7 +151,8 @@ Push to charts/ → Build Image → Trivy Scan → Secret Scan → Helm Deploy
 ```
 
 ### Policy Pipeline
-```
+
+```text
 Any PR → OPA Test → Deployment Logic Check → Secret Scan
 ```
 

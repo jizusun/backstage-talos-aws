@@ -1,0 +1,5 @@
+ignore:
+  - vulnerability: "*"
+    package:
+      location: "terraform/test/go.sum"
+    reason: "Transitive dependencies in Terratest - not called by our code (govulncheck confirms 0 exploitable)"
