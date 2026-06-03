@@ -4,8 +4,9 @@ resource "aws_elasticache_subnet_group" "this" {
 }
 
 resource "aws_security_group" "redis" {
-  name   = "${var.cluster_name}-redis"
-  vpc_id = var.vpc_id
+  name        = "${var.cluster_name}-redis"
+  description = "ElastiCache Redis access from Talos cluster"
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port       = 6379

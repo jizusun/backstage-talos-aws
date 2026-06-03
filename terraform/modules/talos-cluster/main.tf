@@ -83,8 +83,19 @@ resource "aws_instance" "controlplane" {
   subnet_id              = var.public_subnet_ids[count.index % length(var.public_subnet_ids)]
   vpc_security_group_ids = [aws_security_group.cluster.id]
   iam_instance_profile   = aws_iam_instance_profile.controlplane.name
+  ebs_optimized          = true
+  monitoring             = true
 
   associate_public_ip_address = true
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
+  root_block_device {
+    encrypted = true
+  }
 
   user_data = data.talos_machine_configuration.controlplane.machine_configuration
 
@@ -102,6 +113,17 @@ resource "aws_instance" "worker" {
   subnet_id              = var.private_subnet_ids[each.key % length(var.private_subnet_ids)]
   vpc_security_group_ids = [aws_security_group.cluster.id]
   iam_instance_profile   = aws_iam_instance_profile.worker.name
+  ebs_optimized          = true
+  monitoring             = true
+
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
+  root_block_device {
+    encrypted = true
+  }
 
   user_data = data.talos_machine_configuration.worker.machine_configuration
 
@@ -131,6 +153,7 @@ resource "aws_lb" "api" {
   subnets            = var.public_subnet_ids
 
   enable_cross_zone_load_balancing = true
+  enable_deletion_protection       = true
   tags                             = var.tags
 }
 
@@ -197,8 +220,9 @@ resource "aws_lb_target_group_attachment" "cp_talos" {
 # --- Security Group ---
 
 resource "aws_security_group" "cluster" {
-  name   = "${var.cluster_name}-cluster"
-  vpc_id = var.vpc_id
+  name        = "${var.cluster_name}-cluster"
+  description = "Talos cluster internal communication and API access"
+  vpc_id      = var.vpc_id
 
   # Internal cluster communication
   ingress {

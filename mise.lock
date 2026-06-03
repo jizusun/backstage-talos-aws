@@ -107,6 +107,54 @@ url = "https://github.com/oven-sh/bun/releases/download/bun-v1.2.2/bun-windows-x
 checksum = "sha256:6421bdd071a8eb2a66f05ce0ccea9665fef6b23de342f2eff243501ba609fe69"
 url = "https://github.com/oven-sh/bun/releases/download/bun-v1.2.2/bun-windows-x64-baseline.zip"
 
+[[tools.checkov]]
+version = "3.2.532"
+backend = "aqua:bridgecrewio/checkov"
+
+[tools.checkov."platforms.linux-arm64"]
+checksum = "sha256:a6066efa586ab26041232316eae3c63f40953bdee2d2724b20562eb7817b8e79"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_linux_arm64.zip"
+
+[tools.checkov."platforms.linux-arm64-musl"]
+checksum = "sha256:a6066efa586ab26041232316eae3c63f40953bdee2d2724b20562eb7817b8e79"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_linux_arm64.zip"
+
+[tools.checkov."platforms.linux-x64"]
+checksum = "sha256:4976358647668e90092b3c552b53c1cb53ead206d6693092baebdb649bc57149"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_linux_X86_64.zip"
+
+[tools.checkov."platforms.linux-x64-baseline"]
+checksum = "sha256:4976358647668e90092b3c552b53c1cb53ead206d6693092baebdb649bc57149"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_linux_X86_64.zip"
+
+[tools.checkov."platforms.linux-x64-musl"]
+checksum = "sha256:4976358647668e90092b3c552b53c1cb53ead206d6693092baebdb649bc57149"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_linux_X86_64.zip"
+
+[tools.checkov."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:4976358647668e90092b3c552b53c1cb53ead206d6693092baebdb649bc57149"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_linux_X86_64.zip"
+
+[tools.checkov."platforms.macos-arm64"]
+checksum = "sha256:a594f171175e643136e8eee77085b0d5c1e4ba8a887982cb30b7c85b0ba1ee5c"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_darwin_X86_64.zip"
+
+[tools.checkov."platforms.macos-x64"]
+checksum = "sha256:a594f171175e643136e8eee77085b0d5c1e4ba8a887982cb30b7c85b0ba1ee5c"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_darwin_X86_64.zip"
+
+[tools.checkov."platforms.macos-x64-baseline"]
+checksum = "sha256:a594f171175e643136e8eee77085b0d5c1e4ba8a887982cb30b7c85b0ba1ee5c"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_darwin_X86_64.zip"
+
+[tools.checkov."platforms.windows-x64"]
+checksum = "sha256:18dc922205c874bee4173a442112b5ac6cf13f28b7a438274b305627c3fc6ab2"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_windows_X86_64.zip"
+
+[tools.checkov."platforms.windows-x64-baseline"]
+checksum = "sha256:18dc922205c874bee4173a442112b5ac6cf13f28b7a438274b305627c3fc6ab2"
+url = "https://github.com/bridgecrewio/checkov/releases/download/3.2.532/checkov_windows_X86_64.zip"
+
 [[tools."github:sivchari/kumo"]]
 version = "0.24.1"
 backend = "github:sivchari/kumo"

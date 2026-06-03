@@ -5,8 +5,9 @@ resource "aws_db_subnet_group" "this" {
 }
 
 resource "aws_security_group" "db" {
-  name   = "${var.cluster_name}-db"
-  vpc_id = var.vpc_id
+  name        = "${var.cluster_name}-db"
+  description = "RDS PostgreSQL access from Talos cluster"
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port       = 5432
@@ -37,9 +38,12 @@ resource "aws_db_instance" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.db.id]
 
-  backup_retention_period = var.backup_retention_period
-  skip_final_snapshot     = var.environment == "dev"
-  deletion_protection     = var.environment == "production"
+  backup_retention_period      = var.backup_retention_period
+  copy_tags_to_snapshot        = true
+  auto_minor_version_upgrade   = true
+  performance_insights_enabled = true
+  skip_final_snapshot          = var.environment == "dev"
+  deletion_protection          = var.environment == "production"
 
   tags = var.tags
 }
