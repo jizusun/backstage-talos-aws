@@ -2,7 +2,7 @@
 opentofu = "1.9.0"
 helm = "3.21.0"
 kubectl = "1.33.12"
-opa = "1.1.0"
+opa = "1.17.0"
 kind = "0.25.0"
 talosctl = "1.12.6"
 golang = "1.23.4"
