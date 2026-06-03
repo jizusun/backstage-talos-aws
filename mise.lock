@@ -167,41 +167,52 @@ checksum = "sha256:16c59ac9196b63afb872ce9b47f945b9821a3e1542ec125f16f6085a1c0f3
 url = "https://dl.google.com/go/go1.23.4.windows-amd64.zip"
 
 [[tools.helm]]
-version = "3.16.3"
+version = "3.21.0"
 backend = "aqua:helm/helm"
 
 [tools.helm."platforms.linux-arm64"]
-url = "https://get.helm.sh/helm-3.16.3-linux-arm64.tar.gz"
+checksum = "sha256:8de5a0c9a47431e59fd560e91e0779c8cf9316c383da7efb84128a4c339ecb2d"
+url = "https://get.helm.sh/helm-v3.21.0-linux-arm64.tar.gz"
 
 [tools.helm."platforms.linux-arm64-musl"]
-url = "https://get.helm.sh/helm-3.16.3-linux-arm64.tar.gz"
+checksum = "sha256:8de5a0c9a47431e59fd560e91e0779c8cf9316c383da7efb84128a4c339ecb2d"
+url = "https://get.helm.sh/helm-v3.21.0-linux-arm64.tar.gz"
 
 [tools.helm."platforms.linux-x64"]
-url = "https://get.helm.sh/helm-3.16.3-linux-amd64.tar.gz"
+checksum = "sha256:0093eb572e3d2380f094df162ddb525e219249de88957afe24cfbb19632acd36"
+url = "https://get.helm.sh/helm-v3.21.0-linux-amd64.tar.gz"
 
 [tools.helm."platforms.linux-x64-baseline"]
-url = "https://get.helm.sh/helm-3.16.3-linux-amd64.tar.gz"
+checksum = "sha256:0093eb572e3d2380f094df162ddb525e219249de88957afe24cfbb19632acd36"
+url = "https://get.helm.sh/helm-v3.21.0-linux-amd64.tar.gz"
 
 [tools.helm."platforms.linux-x64-musl"]
-url = "https://get.helm.sh/helm-3.16.3-linux-amd64.tar.gz"
+checksum = "sha256:0093eb572e3d2380f094df162ddb525e219249de88957afe24cfbb19632acd36"
+url = "https://get.helm.sh/helm-v3.21.0-linux-amd64.tar.gz"
 
 [tools.helm."platforms.linux-x64-musl-baseline"]
-url = "https://get.helm.sh/helm-3.16.3-linux-amd64.tar.gz"
+checksum = "sha256:0093eb572e3d2380f094df162ddb525e219249de88957afe24cfbb19632acd36"
+url = "https://get.helm.sh/helm-v3.21.0-linux-amd64.tar.gz"
 
 [tools.helm."platforms.macos-arm64"]
-url = "https://get.helm.sh/helm-3.16.3-darwin-arm64.tar.gz"
+checksum = "sha256:68bfbdc022c543a2a022597b20298216877e98abe6e4a345d3ecf114d79cae5f"
+url = "https://get.helm.sh/helm-v3.21.0-darwin-arm64.tar.gz"
 
 [tools.helm."platforms.macos-x64"]
-url = "https://get.helm.sh/helm-3.16.3-darwin-amd64.tar.gz"
+checksum = "sha256:8bc0c1f85f8738cc3cda4a2cc73047145bcdcb1f4d9cdcc29073037bfb22fa2e"
+url = "https://get.helm.sh/helm-v3.21.0-darwin-amd64.tar.gz"
 
 [tools.helm."platforms.macos-x64-baseline"]
-url = "https://get.helm.sh/helm-3.16.3-darwin-amd64.tar.gz"
+checksum = "sha256:8bc0c1f85f8738cc3cda4a2cc73047145bcdcb1f4d9cdcc29073037bfb22fa2e"
+url = "https://get.helm.sh/helm-v3.21.0-darwin-amd64.tar.gz"
 
 [tools.helm."platforms.windows-x64"]
-url = "https://get.helm.sh/helm-3.16.3-windows-amd64.tar.gz"
+checksum = "sha256:5752d1777a9b3f96e3567bb844837904227741ae8c31ec178006f129c3c70936"
+url = "https://get.helm.sh/helm-v3.21.0-windows-amd64.tar.gz"
 
 [tools.helm."platforms.windows-x64-baseline"]
-url = "https://get.helm.sh/helm-3.16.3-windows-amd64.tar.gz"
+checksum = "sha256:5752d1777a9b3f96e3567bb844837904227741ae8c31ec178006f129c3c70936"
+url = "https://get.helm.sh/helm-v3.21.0-windows-amd64.tar.gz"
 
 [[tools.kind]]
 version = "0.25.0"
@@ -252,41 +263,52 @@ checksum = "sha256:5fe4acad495dacc21efb5e2362b3b567e19b7d845acbc07f96c9a5170aaf2
 url = "https://github.com/kubernetes-sigs/kind/releases/download/v0.25.0/kind-windows-amd64"
 
 [[tools.kubectl]]
-version = "1.31.3"
+version = "1.33.12"
 backend = "aqua:kubernetes/kubernetes/kubectl"
 
 [tools.kubectl."platforms.linux-arm64"]
-url = "https://dl.k8s.io/1.31.3/bin/linux/arm64/kubectl"
+checksum = "sha256:d1a1f7b86859108406e997430a59c95c72a77cc33cdc4faccd046407aff2cfac"
+url = "https://dl.k8s.io/v1.33.12/bin/linux/arm64/kubectl"
 
 [tools.kubectl."platforms.linux-arm64-musl"]
-url = "https://dl.k8s.io/1.31.3/bin/linux/arm64/kubectl"
+checksum = "sha256:d1a1f7b86859108406e997430a59c95c72a77cc33cdc4faccd046407aff2cfac"
+url = "https://dl.k8s.io/v1.33.12/bin/linux/arm64/kubectl"
 
 [tools.kubectl."platforms.linux-x64"]
-url = "https://dl.k8s.io/1.31.3/bin/linux/amd64/kubectl"
+checksum = "sha256:fe80ae4133b44fa2077db4af144e80765eb1b3b2eede55fbff6933c4374d8c6e"
+url = "https://dl.k8s.io/v1.33.12/bin/linux/amd64/kubectl"
 
 [tools.kubectl."platforms.linux-x64-baseline"]
-url = "https://dl.k8s.io/1.31.3/bin/linux/amd64/kubectl"
+checksum = "sha256:fe80ae4133b44fa2077db4af144e80765eb1b3b2eede55fbff6933c4374d8c6e"
+url = "https://dl.k8s.io/v1.33.12/bin/linux/amd64/kubectl"
 
 [tools.kubectl."platforms.linux-x64-musl"]
-url = "https://dl.k8s.io/1.31.3/bin/linux/amd64/kubectl"
+checksum = "sha256:fe80ae4133b44fa2077db4af144e80765eb1b3b2eede55fbff6933c4374d8c6e"
+url = "https://dl.k8s.io/v1.33.12/bin/linux/amd64/kubectl"
 
 [tools.kubectl."platforms.linux-x64-musl-baseline"]
-url = "https://dl.k8s.io/1.31.3/bin/linux/amd64/kubectl"
+checksum = "sha256:fe80ae4133b44fa2077db4af144e80765eb1b3b2eede55fbff6933c4374d8c6e"
+url = "https://dl.k8s.io/v1.33.12/bin/linux/amd64/kubectl"
 
 [tools.kubectl."platforms.macos-arm64"]
-url = "https://dl.k8s.io/1.31.3/bin/darwin/arm64/kubectl"
+checksum = "sha256:5e6348cee1f3c1a889db7d547cb22d3921b608665a72f0de6aec27c6080bc380"
+url = "https://dl.k8s.io/v1.33.12/bin/darwin/arm64/kubectl"
 
 [tools.kubectl."platforms.macos-x64"]
-url = "https://dl.k8s.io/1.31.3/bin/darwin/amd64/kubectl"
+checksum = "sha256:1d6d17863d6419455abd952752ad8d7217ab8aed4fb6a1d00329d975fb3359d3"
+url = "https://dl.k8s.io/v1.33.12/bin/darwin/amd64/kubectl"
 
 [tools.kubectl."platforms.macos-x64-baseline"]
-url = "https://dl.k8s.io/1.31.3/bin/darwin/amd64/kubectl"
+checksum = "sha256:1d6d17863d6419455abd952752ad8d7217ab8aed4fb6a1d00329d975fb3359d3"
+url = "https://dl.k8s.io/v1.33.12/bin/darwin/amd64/kubectl"
 
 [tools.kubectl."platforms.windows-x64"]
-url = "https://dl.k8s.io/1.31.3/bin/windows/amd64/kubectl.exe"
+checksum = "sha256:e7a5680bbb8fc318e9514ff1571266227f39c1e42b2e9c399acac7a1f846d1a7"
+url = "https://dl.k8s.io/v1.33.12/bin/windows/amd64/kubectl.exe"
 
 [tools.kubectl."platforms.windows-x64-baseline"]
-url = "https://dl.k8s.io/1.31.3/bin/windows/amd64/kubectl.exe"
+checksum = "sha256:e7a5680bbb8fc318e9514ff1571266227f39c1e42b2e9c399acac7a1f846d1a7"
+url = "https://dl.k8s.io/v1.33.12/bin/windows/amd64/kubectl.exe"
 
 [[tools.opa]]
 version = "1.1.0"

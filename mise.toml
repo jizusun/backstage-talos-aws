@@ -1,7 +1,7 @@
 [tools]
 opentofu = "1.9.0"
-helm = "3.16.3"
-kubectl = "1.31.3"
+helm = "3.21.0"
+kubectl = "1.33.12"
 opa = "1.1.0"
 kind = "0.25.0"
 talosctl = "1.12.6"
