@@ -32,3 +32,5 @@ build/
 
 # Raw research files
 raw/
+
+megalinter-reports/
