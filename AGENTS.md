@@ -87,8 +87,8 @@ mise run test:e2e   # Layer 3: real AWS (needs credentials)
 
 - `pr-validation.yml` is the only workflow that runs on PRs
 - `infrastructure.yml` and `application.yml` only trigger on push to `main`
-- Do **not** use `jdx/mise-action` — install tools directly with setup actions (opentofu, bun, helm, go)
-- Reason: mise-action fails installing some tools (talosctl) in CI runners
+- Use `jdx/mise-action@v2` — `mise.toml` is the single source of truth for tool versions
+- If a tool fails to install in CI, exclude it from `mise.toml` and add to a CI-only override
 
 ### Deployment Flow
 

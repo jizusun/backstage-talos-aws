@@ -4,19 +4,16 @@ on:
   pull_request:
     branches: [main, develop]
 
+env:
+  MISE_DISABLE_TOOLS: talosctl
+
 jobs:
   opa-tests:
     name: OPA Policy Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install OPA
-        run: |
-          curl -sL -o opa https://openpolicyagent.org/downloads/v1.1.0/opa_linux_amd64_static
-          chmod +x opa && sudo mv opa /usr/local/bin/
+      - uses: jdx/mise-action@v2
 
       - name: Run Policy Tests
         run: opa test policies/opa/ -v
@@ -26,7 +23,6 @@ jobs:
           echo '{"environment":"production","approval_status":"pending"}' > /tmp/prod.json
           opa eval -d policies/opa/ -i /tmp/prod.json "data.deployment.approval.allow" | grep -q "false"
           echo "✅ Production correctly blocked"
-
           echo '{"environment":"dev"}' > /tmp/dev.json
           opa eval -d policies/opa/ -i /tmp/dev.json "data.deployment.approval.allow" | grep -q "true"
           echo "✅ Dev correctly allowed"

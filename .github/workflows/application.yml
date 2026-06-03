@@ -14,6 +14,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  MISE_DISABLE_TOOLS: talosctl
 
 jobs:
   build:
@@ -38,12 +39,10 @@ jobs:
           docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
           docker push $IMAGE --all-tags
 
+      - uses: jdx/mise-action@v2
+
       - name: Trivy Scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ steps.ecr.outputs.registry }}/backstage-${{ github.event.inputs.environment || 'dev' }}/backstage:${{ github.sha }}
-          exit-code: '1'
-          severity: 'HIGH,CRITICAL'
+        run: trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ steps.ecr.outputs.registry }}/backstage-${{ github.event.inputs.environment || 'dev' }}/backstage:${{ github.sha }}
 
   test:
     name: Code Quality
@@ -54,8 +53,8 @@ jobs:
 
       - name: Secret Scan
         run: |
-          mise run scan > /tmp/file_scan.json
-          RESULT=$(opa eval -d policies/opa/secret-scanning.rego -i /tmp/file_scan.json "data.security.secrets.violation" 2>&1)
+          bun .mise/tasks/scan > /tmp/file_scan.json
+          RESULT=$(opa eval -d policies/opa/secret-scanning.rego -i /tmp/file_scan.json "data.security.secrets.violation")
           if echo "$RESULT" | grep -q '"msg"'; then
             echo "❌ Secrets detected" && exit 1
           fi

@@ -19,19 +19,18 @@ jobs:
   test:
     name: Validate & Scan
     runs-on: ubuntu-latest
+    env:
+      MISE_DISABLE_TOOLS: talosctl
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
-      - name: Format Check
-        run: tofu fmt -check -recursive
-        working-directory: terraform/
-
       - name: Validate
+        working-directory: terraform/
         run: |
           tofu init -backend=false
+          tofu fmt -check -recursive
           tofu validate
-        working-directory: terraform/
 
       - name: OPA Policy Test
         run: opa test policies/opa/ -v
@@ -42,6 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENV: ${{ github.event.inputs.environment || 'dev' }}
+      MISE_DISABLE_TOOLS: talosctl
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
@@ -52,12 +52,12 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Plan
+        working-directory: terraform/
         run: |
           tofu init
           tofu workspace select -or-create ${{ env.ENV }}
           tofu plan -var-file=environments/${{ env.ENV }}.tfvars -var="db_password=${{ secrets.DB_PASSWORD }}" -out=tfplan
           tofu show -json tfplan > tfplan.json
-        working-directory: terraform/
 
       - name: OPA Compliance Check
         run: opa eval -d policies/opa/terraform-compliance.rego -i terraform/tfplan.json "data.terraform.compliance.violation" --fail-defined
@@ -103,11 +103,11 @@ jobs:
           path: terraform/
 
       - name: Apply
+        working-directory: terraform/
         run: |
           tofu init
           tofu workspace select ${{ env.ENV }}
           tofu apply tfplan
-        working-directory: terraform/
 
       - name: Validate Cluster
         run: talosctl health --nodes $(tofu -chdir=terraform output -raw control_plane_ip)

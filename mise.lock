@@ -314,65 +314,6 @@ url = "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_
 checksum = "sha256:bb0618441a20c4ba648f40d18c8bda0515d379c3a189d4a1c19d834858510e8c"
 url = "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_windows_amd64.tar.gz"
 
-[[tools.talosctl]]
-version = "1.12.6"
-backend = "aqua:siderolabs/talos"
-
-[tools.talosctl."platforms.linux-arm64"]
-checksum = "sha256:4d28254ee6ea994bbb0bca49b2047d69ccc90fa9ffb2004195143280443ada16"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-arm64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.linux-arm64-musl"]
-checksum = "sha256:4d28254ee6ea994bbb0bca49b2047d69ccc90fa9ffb2004195143280443ada16"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-arm64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.linux-x64"]
-checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.linux-x64-baseline"]
-checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.linux-x64-musl"]
-checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.linux-x64-musl-baseline"]
-checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.macos-arm64"]
-checksum = "sha256:259f0cac549252a29f39703d992917479cec909a0ea8113c3a88d4002b395285"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-darwin-arm64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.macos-x64"]
-checksum = "sha256:86cc3a343515fac34042f0d1d2f9e7d9c67d85789e148a913b5de0bf32093095"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-darwin-amd64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.macos-x64-baseline"]
-checksum = "sha256:86cc3a343515fac34042f0d1d2f9e7d9c67d85789e148a913b5de0bf32093095"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-darwin-amd64"
-provenance = "cosign"
-
-[tools.talosctl."platforms.windows-x64"]
-checksum = "sha256:3b33674623ec2ef496ab490a82969bc8ec0a0000adb1679d88dfeb1f4fc0c489"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-windows-amd64.exe"
-provenance = "cosign"
-
-[tools.talosctl."platforms.windows-x64-baseline"]
-checksum = "sha256:3b33674623ec2ef496ab490a82969bc8ec0a0000adb1679d88dfeb1f4fc0c489"
-url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-windows-amd64.exe"
-provenance = "cosign"
-
 [[tools.tflint]]
 version = "0.54.0"
 backend = "aqua:terraform-linters/tflint"
