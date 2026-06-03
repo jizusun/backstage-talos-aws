@@ -14,13 +14,12 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  MISE_DISABLE_TOOLS: talosctl
 
 jobs:
   test:
     name: Validate & Scan
     runs-on: ubuntu-latest
-    env:
-      MISE_DISABLE_TOOLS: talosctl
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
@@ -41,7 +40,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENV: ${{ github.event.inputs.environment || 'dev' }}
-      MISE_DISABLE_TOOLS: talosctl
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
