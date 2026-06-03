@@ -23,7 +23,7 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 - Use variable validation blocks for user-facing inputs
 - Root module composes child modules — never put resources directly in root
 - Use workspaces for environment separation, `environments/*.tfvars` for config
-- Backend is S3 + DynamoDB — always use `-backend=false` for local testing
+- Backend is S3 with native state locking — always use `-backend=false` for local testing
 
 ### Tasks (Bun TypeScript)
 
