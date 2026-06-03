@@ -4,8 +4,6 @@ on:
   pull_request:
     branches: [main, develop]
 
-env:
-
 jobs:
   opa-tests:
     name: OPA Policy Tests

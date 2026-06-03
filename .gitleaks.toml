@@ -1,0 +1,8 @@
+title = "gitleaks config"
+
+[allowlist]
+paths = [
+  '''terraform/modules/.*/tests/.*''',
+  '''terraform/test/fixtures/.*''',
+  '''kubeconfig''',
+]

@@ -2,6 +2,7 @@ locals {
   tags = merge(var.tags, {
     Environment = var.environment
     Cluster     = var.cluster_name
+    MultiRegion = tostring(var.multi_region)
   })
 }
 

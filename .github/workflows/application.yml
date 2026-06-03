@@ -81,7 +81,7 @@ jobs:
       - name: Get Kubeconfig
         run: |
           aws s3 cp s3://backstage-platform-tfstate/kubeconfig/${{ env.ENV }}/kubeconfig ./kubeconfig
-          echo "KUBECONFIG=$(pwd)/kubeconfig" >> $GITHUB_ENV
+          echo "KUBECONFIG=$(pwd)/kubeconfig" >> "$GITHUB_ENV"
 
       - name: Helm Deploy
         run: |

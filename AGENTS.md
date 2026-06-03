@@ -51,7 +51,7 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 
 ### Testing Pyramid
 
-```
+```text
       E2E (AWS)           ← Real infra, $50/month, weekly
     Integration           ← Kind + Terratest + OPA eval, $0, minutes
   Unit (lint/validate)    ← tofu + tflint + trivy + opa + helm, $0, seconds
@@ -100,14 +100,14 @@ mise run test:e2e   # Layer 3: real AWS (needs credentials)
 
 ### Deployment Flow
 
-```
+```text
 dev/test/perf: push → validate → plan → apply (automatic)
 staging/prod:  push → validate → plan → approval → apply (manual gate)
 ```
 
 ## Project Structure
 
-```
+```text
 .
 ├── mise.toml                  # Tools + env vars (no inline tasks)
 ├── .mise/tasks/               # All tasks as Bun TypeScript files
