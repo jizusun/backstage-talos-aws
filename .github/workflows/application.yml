@@ -36,22 +36,22 @@ jobs:
 
       - name: Build & Push
         run: |
-          IMAGE=${STEPS_ECR_OUTPUTS_REGISTRY}/backstage-${APP_ENV}/backstage
-          APP_ENV: ${{ github.event.inputs.environment || 'dev' }}
-          docker build -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
-          docker push $IMAGE --all-tags
+          IMAGE="${STEPS_ECR_OUTPUTS_REGISTRY}/backstage-${APP_ENV}/backstage"
+          docker build -t "$IMAGE:${GIT_SHA}" -t "$IMAGE:latest" .
+          docker push "$IMAGE" --all-tags
         env:
           STEPS_ECR_OUTPUTS_REGISTRY: ${{ steps.ecr.outputs.registry }}
           APP_ENV: ${{ github.event.inputs.environment || 'dev' }}
+          GIT_SHA: ${{ github.sha }}
 
       - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
 
       - name: Trivy Scan
-        run: trivy image --exit-code 1 --severity HIGH,CRITICAL ${STEPS_ECR_OUTPUTS_REGISTRY}/backstage-${APP_ENV}/backstage:${{ github.sha }}
-          APP_ENV: ${{ github.event.inputs.environment || 'dev' }}
+        run: trivy image --exit-code 1 --severity HIGH,CRITICAL "${STEPS_ECR_OUTPUTS_REGISTRY}/backstage-${APP_ENV}/backstage:${GIT_SHA}"
         env:
           STEPS_ECR_OUTPUTS_REGISTRY: ${{ steps.ecr.outputs.registry }}
           APP_ENV: ${{ github.event.inputs.environment || 'dev' }}
+          GIT_SHA: ${{ github.sha }}
 
   test:
     name: Code Quality
@@ -75,12 +75,12 @@ jobs:
         run: helm lint charts/backstage/
 
   deploy:
-    name: Deploy (${APP_ENV})
+    name: Deploy ("${APP_ENV}")
     needs: [build, test]
     runs-on: ubuntu-latest
-    environment: ${APP_ENV}
+    environment: "${APP_ENV}"
     env:
-      ENV: ${APP_ENV}
+      ENV: "${APP_ENV}"
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
@@ -94,14 +94,14 @@ jobs:
 
       - name: Get Kubeconfig
         run: |
-          aws s3 cp s3://backstage-platform-tfstate/kubeconfig/${ENV}/kubeconfig ./kubeconfig
+          aws s3 cp s3://backstage-platform-tfstate/kubeconfig/"${ENV}"/kubeconfig ./kubeconfig
           echo "KUBECONFIG=$(pwd)/kubeconfig" >> "$GITHUB_ENV"
 
       - name: Helm Deploy
         run: |
           helm upgrade --install backstage charts/backstage/ \
-            --values charts/backstage/values/${ENV}.yaml \
-            --set image.tag=${NEEDS_BUILD_OUTPUTS_IMAGE_TAG} \
+            --values charts/backstage/values/"${ENV}".yaml \
+            --set image.tag="${NEEDS_BUILD_OUTPUTS_IMAGE_TAG}" \
             --wait --timeout 10m
         env:
           NEEDS_BUILD_OUTPUTS_IMAGE_TAG: ${{ needs.build.outputs.image_tag }}

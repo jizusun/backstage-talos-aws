@@ -32,6 +32,18 @@ hooks {
       ["editorconfig"] {
         check = "ec"
       }
+      ["zizmor"] {
+        glob = List(".github/workflows/*.yml")
+        check = "zizmor --min-severity high --min-confidence high .github/workflows/application.yml .github/workflows/infrastructure.yml .github/workflows/pr-validation.yml .github/workflows/policy-check.yml .github/workflows/renovate.yml"
+      }
+      ["tflint"] {
+        glob = List("*.tf")
+        check = "tflint --chdir=terraform --recursive --minimum-failure-severity=error"
+      }
+      ["trivy"] {
+        glob = List("*.tf")
+        check = "trivy config terraform/ --severity CRITICAL --exit-code 1"
+      }
     }
   }
 }

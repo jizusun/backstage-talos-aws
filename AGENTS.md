@@ -171,3 +171,14 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 - Prefer `tofu test` over Terratest for logic — it's faster and native
 - Use Bun's `$` API carefully with pipes — write to files instead of piping stdin in Bun shell
 - Integration tests should be idempotent — clean up Kind clusters, kill background processes
+
+### When Making Changes
+
+- **Never push without explicit permission** — commit locally, wait for user to say "push"
+- **Never modify linter configs** (`.mega-linter.yml`, `.editorconfig`) without confirming first
+- **Validate locally before pushing to CI** — don't use CI as your test environment
+- **Diagnose root cause before iterating fixes** — read actual error logs, don't guess
+- **Verify tool/version exists** before adding: `mise ls-remote <tool>` to check available versions
+- **Check emulator API coverage** before adopting — verify your services are supported, don't assume
+- **Keep commits atomic** — one logical change per commit, not fix-fix-fix chains
+- **Follow existing conventions** — read mise.toml, AGENTS.md, and existing code before writing new code

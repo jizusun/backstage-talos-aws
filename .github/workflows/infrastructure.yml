@@ -56,8 +56,8 @@ jobs:
         working-directory: terraform/
         run: |
           tofu init
-          tofu workspace select -or-create ${ENV}
-          tofu plan -var-file=environments/${ENV}.tfvars -var="db_password=${{ secrets.DB_PASSWORD }}" -out=tfplan
+          tofu workspace select -or-create "${ENV}"
+          tofu plan -var-file="environments/${ENV}".tfvars -var="db_password=${{ secrets.DB_PASSWORD }}" -out=tfplan
           tofu show -json tfplan > tfplan.json
 
       - name: OPA Compliance Check
@@ -111,7 +111,7 @@ jobs:
         working-directory: terraform/
         run: |
           tofu init
-          tofu workspace select ${ENV}
+          tofu workspace select "${ENV}"
           tofu apply tfplan
 
       - name: Validate Cluster
