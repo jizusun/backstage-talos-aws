@@ -48,6 +48,76 @@ url = "https://github.com/oven-sh/bun/releases/download/bun-v1.2.2/bun-windows-x
 checksum = "sha256:6421bdd071a8eb2a66f05ce0ccea9665fef6b23de342f2eff243501ba609fe69"
 url = "https://github.com/oven-sh/bun/releases/download/bun-v1.2.2/bun-windows-x64-baseline.zip"
 
+[[tools."github:sivchari/kumo"]]
+version = "0.24.1"
+backend = "github:sivchari/kumo"
+
+[tools."github:sivchari/kumo"."platforms.linux-arm64"]
+checksum = "sha256:d9033d6e73747d01877f4a33d5beef97572147cde74550b23cefe02754fffb9f"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634327"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.linux-arm64-musl"]
+checksum = "sha256:d9033d6e73747d01877f4a33d5beef97572147cde74550b23cefe02754fffb9f"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634327"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.linux-x64"]
+checksum = "sha256:0d99c393b5e458aa09767ad6d358f8b5a97bfb143632f84dc5a6c53a4a9621b6"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634328"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.linux-x64-baseline"]
+checksum = "sha256:0d99c393b5e458aa09767ad6d358f8b5a97bfb143632f84dc5a6c53a4a9621b6"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634328"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.linux-x64-musl"]
+checksum = "sha256:0d99c393b5e458aa09767ad6d358f8b5a97bfb143632f84dc5a6c53a4a9621b6"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634328"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:0d99c393b5e458aa09767ad6d358f8b5a97bfb143632f84dc5a6c53a4a9621b6"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634328"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.macos-arm64"]
+checksum = "sha256:f161c79e89c72450217fbdd59da8911d3e77000a5ecca4417fdf3a8e16576c8f"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634330"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.macos-x64"]
+checksum = "sha256:2a21cf16b0c4db59eded3cd037afa0c76d1eea353518e02a8bde36eaba5e5930"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634335"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.macos-x64-baseline"]
+checksum = "sha256:2a21cf16b0c4db59eded3cd037afa0c76d1eea353518e02a8bde36eaba5e5930"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634335"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.windows-x64"]
+checksum = "sha256:725a7c8ad672933577b05dad65859f787551d166cf8a405d0ddc01d22da03069"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_windows_amd64.zip"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634329"
+github_attestations = "unavailable"
+
+[tools."github:sivchari/kumo"."platforms.windows-x64-baseline"]
+checksum = "sha256:725a7c8ad672933577b05dad65859f787551d166cf8a405d0ddc01d22da03069"
+url = "https://github.com/sivchari/kumo/releases/download/v0.24.1/kumo_0.24.1_windows_amd64.zip"
+url_api = "https://api.github.com/repos/sivchari/kumo/releases/assets/433634329"
+github_attestations = "unavailable"
+
 [[tools.go]]
 version = "1.23.4"
 backend = "core:go"
@@ -313,6 +383,65 @@ url = "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_
 [tools.opentofu."platforms.windows-x64-baseline"]
 checksum = "sha256:bb0618441a20c4ba648f40d18c8bda0515d379c3a189d4a1c19d834858510e8c"
 url = "https://github.com/opentofu/opentofu/releases/download/v1.9.0/tofu_1.9.0_windows_amd64.tar.gz"
+
+[[tools.talosctl]]
+version = "1.12.6"
+backend = "aqua:siderolabs/talos"
+
+[tools.talosctl."platforms.linux-arm64"]
+checksum = "sha256:4d28254ee6ea994bbb0bca49b2047d69ccc90fa9ffb2004195143280443ada16"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-arm64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.linux-arm64-musl"]
+checksum = "sha256:4d28254ee6ea994bbb0bca49b2047d69ccc90fa9ffb2004195143280443ada16"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-arm64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.linux-x64"]
+checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.linux-x64-baseline"]
+checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.linux-x64-musl"]
+checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.linux-x64-musl-baseline"]
+checksum = "sha256:4c41a3b10b075292e64b182283d558e9d8e935f43239de1ed4e4b14359593efb"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-linux-amd64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.macos-arm64"]
+checksum = "sha256:259f0cac549252a29f39703d992917479cec909a0ea8113c3a88d4002b395285"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-darwin-arm64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.macos-x64"]
+checksum = "sha256:86cc3a343515fac34042f0d1d2f9e7d9c67d85789e148a913b5de0bf32093095"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-darwin-amd64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.macos-x64-baseline"]
+checksum = "sha256:86cc3a343515fac34042f0d1d2f9e7d9c67d85789e148a913b5de0bf32093095"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-darwin-amd64"
+provenance = "cosign"
+
+[tools.talosctl."platforms.windows-x64"]
+checksum = "sha256:3b33674623ec2ef496ab490a82969bc8ec0a0000adb1679d88dfeb1f4fc0c489"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-windows-amd64.exe"
+provenance = "cosign"
+
+[tools.talosctl."platforms.windows-x64-baseline"]
+checksum = "sha256:3b33674623ec2ef496ab490a82969bc8ec0a0000adb1679d88dfeb1f4fc0c489"
+url = "https://github.com/siderolabs/talos/releases/download/v1.12.6/talosctl-windows-amd64.exe"
+provenance = "cosign"
 
 [[tools.tflint]]
 version = "0.54.0"
