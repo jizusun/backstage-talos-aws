@@ -16,7 +16,7 @@ jobs:
     if: ${{ github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
-      - uses: github/branch-deploy@v11
+      - uses: github/branch-deploy@57784835271fa34a5441bf7231b345d079e774f7 # v11
         id: branch-deploy
         with:
           trigger: ".deploy"
@@ -25,12 +25,12 @@ jobs:
           environment_targets: "production,staging,dev"
           stable_branch: main
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
         with:
           ref: ${{ steps.branch-deploy.outputs.sha }}
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
 
       - name: noop deploy

@@ -1,0 +1,3 @@
+raw/
+.terraform/
+**/node_modules/

@@ -1,0 +1,12 @@
+---
+extends: default
+
+ignore:
+  - charts/backstage/templates/
+
+rules:
+  line-length:
+    max: 200
+  truthy:
+    forbid-duplicated-merge-keys: false
+    check-keys: false

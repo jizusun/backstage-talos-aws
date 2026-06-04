@@ -1,6 +1,6 @@
 # Platform Engineering Harness Blueprint
 
-A GitHub template for building **infrastructure test harnesses** around Terraform/OpenTofu projects. The emphasis is on platform engineering rigor — testing pyramid, policy-as-code, CI/CD validation gates, module governance — not the infrastructure itself.
+A GitHub template for building **infrastructure test harnesses** around Terraform/OpenTofu projects. The emphasis is on platform engineering rigor — TDD, testing pyramid, policy-as-code, CI/CD validation gates, module governance — not the infrastructure itself.
 
 Backstage on Talos Linux (AWS) is included as an **example implementation** to demonstrate the harness patterns in a realistic context.
 
@@ -27,6 +27,7 @@ Most issues caught at $0 cost before touching a cloud provider.
 | `tofu test` | 1 | Module assertions with mock_provider |
 | Kind + Helm dry-run | 2 | K8s deployment validity |
 | OPA eval | 2 | Approval gates, secret scanning |
+| kumo + Terratest | 2 | Apply/destroy cycles (AWS emulator, $0) |
 | `tofu apply` (AWS) | 3 | Real infrastructure creation |
 
 ### Policy-as-Code (OPA)
