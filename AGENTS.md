@@ -1,5 +1,11 @@
 # AGENTS.md
 
+## Purpose
+
+This is a **GitHub template repository** for Terraform/OpenTofu infrastructure test harnesses. The focus is on engineering rigor — testing pyramid, policy-as-code, CI/CD validation — not any specific infrastructure deployment.
+
+The included Backstage + Talos + AWS modules are an **example implementation** demonstrating the harness patterns. Replace them with your own infrastructure.
+
 ## Tool Management
 
 This project uses [mise](https://mise.jdx.dev) as the single tool manager, task runner, and environment configuration.
@@ -48,6 +54,8 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 - Use `local.yaml` for Kind development
 
 ## Testing
+
+The harness is the core value of this template. Everything else is replaceable.
 
 ### Testing Pyramid
 
@@ -124,20 +132,20 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 
 ## Key Decisions (Context)
 
-- **Talos Linux** over EKS: immutable OS, $360/month savings, API-only operations
+- **Talos Linux** over EKS: immutable OS, API-only operations (example choice — replace with yours)
 - **OpenTofu** over Terraform: open-source, BSL-free, same HCL syntax
 - **Bun** over bash/python/node: single fast runtime for all scripting
-- **OPA** over Sentinel/Checkov: required by test spec, most flexible
-- **GitHub Actions** over Harness: free, native Git integration; Harness is optional addon
+- **OPA** over Sentinel/Checkov: most flexible, testable policy engine
+- **GitHub Actions** over Harness: free, native Git integration
 - **Kind** for local testing: fast, lightweight, sufficient for Helm validation
-- **No FakeCloud/LocalStack**: doesn't support EC2/VPC APIs needed for our modules
+- **No FakeCloud/LocalStack**: doesn't support EC2/VPC APIs needed for our example modules
 
 ## Guidance for Future Work
 
 ### Before Adding Dependencies
 
 - Check if the tool is available via `mise registry | grep <tool>` before manual install
-- Verify download URLs still exist — upstream projects remove old releases (e.g., helm 3.16.3 was removed)
+- Verify download URLs still exist — upstream projects remove old releases
 - Pin exact versions, never use `latest` in `mise.toml`
 - Run `mise lock` after any change — the lockfile ensures reproducibility across platforms
 
