@@ -42,6 +42,7 @@ Most issues caught at $0 cost before touching a cloud provider.
 - Trivy scanning for security misconfigurations in HCL
 - OPA policies enforcing encryption-at-rest, tagging standards
 - Secret detection in plan output
+- Renovate for automated supply chain security (dependency updates, CVE patching)
 - TODO: SAST/DAST integration
 - TODO: Compliance report generation (SOC2, HIPAA mappings)
 - TODO: Drift detection and remediation
