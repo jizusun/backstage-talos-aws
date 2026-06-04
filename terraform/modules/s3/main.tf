@@ -1,4 +1,5 @@
 resource "aws_s3_bucket" "this" {
+  #checkov:skip=CKV_AWS_144:Cross-region replication not needed for example assets bucket
   bucket = "${var.cluster_name}-assets"
   tags   = var.tags
 }

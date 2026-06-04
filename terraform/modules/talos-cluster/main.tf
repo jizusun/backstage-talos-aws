@@ -76,6 +76,7 @@ data "aws_ami" "talos" {
 }
 
 resource "aws_instance" "controlplane" {
+  #checkov:skip=CKV_AWS_88:Talos needs public IP for API bootstrap
   count = var.control_plane.count
 
   ami                    = data.aws_ami.talos.id
@@ -226,6 +227,7 @@ resource "aws_lb_target_group_attachment" "cp_talos" {
 # --- Security Group ---
 
 resource "aws_security_group" "cluster" {
+  #checkov:skip=CKV_AWS_382:Cluster requires unrestricted egress for internet access
   name        = "${var.cluster_name}-cluster"
   description = "Talos cluster internal communication and API access"
   vpc_id      = var.vpc_id
@@ -289,6 +291,8 @@ resource "aws_iam_role_policy_attachment" "cp_ccm" {
 }
 
 resource "aws_iam_policy" "ccm" {
+  #checkov:skip=CKV_AWS_355:CCM requires broad resource scope for ELB management
+  #checkov:skip=CKV_AWS_290:CCM requires write access without constraints (AWS pattern)
   name = "${var.cluster_name}-ccm"
 
   policy = jsonencode({

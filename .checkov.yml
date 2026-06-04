@@ -1,11 +1,6 @@
 skip-check:
-  - CKV_AWS_88 # Talos needs public IP for bootstrap
-  - CKV_AWS_144 # Cross-region replication too complex for example
-  - CKV_AWS_382 # Cluster egress needs internet access
-  - CKV_AWS_355 # CCM needs broad ELB permissions (AWS pattern)
-  - CKV_AWS_290 # CCM needs write without constraints (AWS pattern)
-  - CKV_TF_1 # Using local modules not registry
-  - CKV_SECRET_6 # Example values file
-  - CKV_GHA_7 # workflow_dispatch inputs intentional
+  - CKV_SECRET_6 # Base64 high entropy string in example values file
+  - CKV_GHA_7 # workflow_dispatch inputs are intentional for environment selection
+  - CKV2_GHA_1 # Deployment workflows require write permissions
 skip-path:
   - charts/backstage/templates/
