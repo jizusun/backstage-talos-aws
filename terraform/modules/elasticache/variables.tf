@@ -24,6 +24,19 @@ variable "num_cache_clusters" {
   default = 1
 }
 
+variable "kms_key_id" {
+  type        = string
+  default     = null
+  description = "KMS key for encryption"
+}
+
+variable "auth_token" {
+  type        = string
+  default     = null
+  sensitive   = true
+  description = "Auth token for Redis"
+}
+
 variable "tags" {
   type    = map(string)
   default = {}

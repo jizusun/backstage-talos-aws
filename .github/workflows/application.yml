@@ -3,11 +3,11 @@ name: Application Deployment
 on:
   push:
     branches: [main]
-    paths: ['charts/**', 'backstage/**']
+    paths: ["charts/**", "backstage/**"]
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
         type: choice
         options: [dev, test, perf, staging, production]

@@ -18,6 +18,8 @@ hk = "1.46.0"
 pkl = "0.31.1"
 editorconfig-checker = "3.7.0"
 zizmor = "1.25.2"
+yamllint = "1.38.0"
+prettier = "3.8.3"
 
 [env]
 AWS_REGION = "us-east-1"

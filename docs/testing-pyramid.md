@@ -23,16 +23,16 @@
 **Run**: Every commit, every PR  
 **Task**: `mise run lint` + `mise run test:unit`
 
-| What | Tool | Validates |
-|------|------|-----------|
-| Syntax & schema | `tofu validate` | HCL correctness |
-| Formatting | `tofu fmt -check` | Code style |
-| Provider rules | `tflint` | AWS deprecations, invalid types |
-| Security | `trivy config` | Misconfigurations |
-| Policy logic | `opa test` | 14 tests (approval, secrets, compliance) |
-| Chart validity | `helm lint` + `helm template` | K8s manifests |
-| Module structure | Terratest `Init` + `Validate` | 6 modules |
-| Module logic | `tofu test` + `mock_provider` | 7 assertions (RDS, S3, ECR) |
+| What             | Tool                          | Validates                                |
+|------------------|-------------------------------|------------------------------------------|
+| Syntax & schema  | `tofu validate`               | HCL correctness                          |
+| Formatting       | `tofu fmt -check`             | Code style                               |
+| Provider rules   | `tflint`                      | AWS deprecations, invalid types          |
+| Security         | `trivy config`                | Misconfigurations                        |
+| Policy logic     | `opa test`                    | 14 tests (approval, secrets, compliance) |
+| Chart validity   | `helm lint` + `helm template` | K8s manifests                            |
+| Module structure | Terratest `Init` + `Validate` | 6 modules                                |
+| Module logic     | `tofu test` + `mock_provider` | 7 assertions (RDS, S3, ECR)              |
 
 ---
 
@@ -41,12 +41,12 @@
 **Run**: Every PR, before merge  
 **Task**: `mise run test:integration` + `mise run test:apply`
 
-| What | Tool | Validates |
-|------|------|-----------|
-| Apply/destroy cycle | kumo + Terratest | S3 module creates/destroys correctly |
-| K8s deployment | Kind + Helm dry-run | Backstage chart deploys to cluster |
-| Approval gates | OPA eval | Production blocked, dev allowed |
-| Secret scanning | OPA eval + bun scan | No credentials in codebase |
+| What                | Tool                | Validates                            |
+|---------------------|---------------------|--------------------------------------|
+| Apply/destroy cycle | kumo + Terratest    | S3 module creates/destroys correctly |
+| K8s deployment      | Kind + Helm dry-run | Backstage chart deploys to cluster   |
+| Approval gates      | OPA eval            | Production blocked, dev allowed      |
+| Secret scanning     | OPA eval + bun scan | No credentials in codebase           |
 
 ---
 
@@ -55,13 +55,13 @@
 **Run**: Weekly or before release  
 **Task**: `mise run test:e2e`
 
-| What | Tool | Validates |
-|------|------|-----------|
-| Full Talos cluster | `tofu apply` (real AWS) | Cluster bootstraps |
-| IRSA | Pod → STS → AWS | Credentials flow |
-| NLB + networking | `curl` | Traffic reaches Backstage |
-| RDS connectivity | Backstage → PostgreSQL | Database works |
-| Talos operations | `talosctl upgrade` | Rolling update |
+| What               | Tool                    | Validates                 |
+|--------------------|-------------------------|---------------------------|
+| Full Talos cluster | `tofu apply` (real AWS) | Cluster bootstraps        |
+| IRSA               | Pod → STS → AWS         | Credentials flow          |
+| NLB + networking   | `curl`                  | Traffic reaches Backstage |
+| RDS connectivity   | Backstage → PostgreSQL  | Database works            |
+| Talos operations   | `talosctl upgrade`      | Rolling update            |
 
 ---
 
@@ -79,10 +79,10 @@ mise run test:e2e      # E2E: real AWS (needs credentials)
 
 ## Cost Efficiency
 
-| Layer | Issues Caught | Cost | Speed |
-|-------|--------------|------|-------|
-| Unit | 70% | $0 | Seconds |
-| Integration | 25% | $0 | Minutes |
-| E2E | 5% | $50/month | 30 min |
+| Layer       | Issues Caught | Cost      | Speed   |
+|-------------|---------------|-----------|---------|
+| Unit        | 70%           | $0        | Seconds |
+| Integration | 25%           | $0        | Minutes |
+| E2E         | 5%            | $50/month | 30 min  |
 
 **95% of issues caught at $0 cost.**

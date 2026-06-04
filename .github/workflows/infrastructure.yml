@@ -3,11 +3,11 @@ name: Infrastructure Deployment
 on:
   push:
     branches: [main]
-    paths: ['terraform/**']
+    paths: ["terraform/**"]
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
         type: choice
         options: [dev, test, perf, staging, production]

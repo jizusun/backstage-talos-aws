@@ -22,3 +22,44 @@ resource "aws_s3_bucket_public_access_block" "this" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+resource "aws_s3_bucket_logging" "this" {
+  count         = var.log_bucket_id != "" ? 1 : 0
+  bucket        = aws_s3_bucket.this.id
+  target_bucket = var.log_bucket_id
+  target_prefix = "${var.cluster_name}-assets/"
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id     = "transition-and-expire"
+    status = "Enabled"
+
+    filter {}
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    expiration {
+      days = 365
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
+resource "aws_s3_bucket_notification" "this" {
+  count  = var.sns_topic_arn != "" ? 1 : 0
+  bucket = aws_s3_bucket.this.id
+
+  topic {
+    topic_arn = var.sns_topic_arn
+    events    = ["s3:ObjectCreated:*"]
+  }
+}

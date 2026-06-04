@@ -16,19 +16,19 @@ Backstage on Talos Linux (AWS) is included as an **example implementation** to d
 
 Most issues caught at $0 cost before touching a cloud provider.
 
-| Tool | Layer | What It Validates |
-|------|-------|-------------------|
-| `tofu validate` | 1 | HCL syntax, module structure |
-| `tflint` | 1 | Provider-specific rules, deprecations |
-| `trivy` | 1 | Security misconfigurations |
-| `opa test` | 1 | Policy logic correctness |
-| `helm lint/template` | 1 | Chart validity |
-| Terratest (Go) | 1 | Module init/validate in isolation |
-| `tofu test` | 1 | Module assertions with mock_provider |
-| Kind + Helm dry-run | 2 | K8s deployment validity |
-| OPA eval | 2 | Approval gates, secret scanning |
-| kumo + Terratest | 2 | Apply/destroy cycles (AWS emulator, $0) |
-| `tofu apply` (AWS) | 3 | Real infrastructure creation |
+| Tool                 | Layer | What It Validates                       |
+|----------------------|-------|-----------------------------------------|
+| `tofu validate`      | 1     | HCL syntax, module structure            |
+| `tflint`             | 1     | Provider-specific rules, deprecations   |
+| `trivy`              | 1     | Security misconfigurations              |
+| `opa test`           | 1     | Policy logic correctness                |
+| `helm lint/template` | 1     | Chart validity                          |
+| Terratest (Go)       | 1     | Module init/validate in isolation       |
+| `tofu test`          | 1     | Module assertions with mock_provider    |
+| Kind + Helm dry-run  | 2     | K8s deployment validity                 |
+| OPA eval             | 2     | Approval gates, secret scanning         |
+| kumo + Terratest     | 2     | Apply/destroy cycles (AWS emulator, $0) |
+| `tofu apply` (AWS)   | 3     | Real infrastructure creation            |
 
 ### Policy-as-Code (OPA)
 
@@ -150,14 +150,14 @@ mise run test:e2e    # Layer 3: real AWS (needs credentials)
 
 ## Technology Choices
 
-| Tool | Why |
-|------|-----|
-| OpenTofu | Open-source, BSL-free, same HCL as Terraform |
-| mise | Single tool/env/task manager — reproducible everywhere |
-| Bun | Fast TypeScript runtime for all task scripts |
-| OPA/Rego | Flexible policy engine, testable, data-driven |
-| Kind | Fast local K8s for integration tests |
-| GitHub Actions | Free CI, native Git integration |
+| Tool           | Why                                                    |
+|----------------|--------------------------------------------------------|
+| OpenTofu       | Open-source, BSL-free, same HCL as Terraform           |
+| mise           | Single tool/env/task manager — reproducible everywhere |
+| Bun            | Fast TypeScript runtime for all task scripts           |
+| OPA/Rego       | Flexible policy engine, testable, data-driven          |
+| Kind           | Fast local K8s for integration tests                   |
+| GitHub Actions | Free CI, native Git integration                        |
 
 ## Documentation
 

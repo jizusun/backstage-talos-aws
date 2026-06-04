@@ -34,7 +34,7 @@ hooks {
       }
       ["zizmor"] {
         glob = List(".github/workflows/*.yml")
-        check = "zizmor --min-severity high --min-confidence high .github/workflows/application.yml .github/workflows/infrastructure.yml .github/workflows/pr-validation.yml .github/workflows/policy-check.yml .github/workflows/renovate.yml"
+        check = "zizmor --min-severity high --min-confidence high .github/workflows/"
       }
       ["tflint"] {
         glob = List("*.tf")
@@ -43,6 +43,22 @@ hooks {
       ["trivy"] {
         glob = List("*.tf")
         check = "trivy config terraform/ --severity CRITICAL --exit-code 1"
+      }
+      ["trivy-vuln"] {
+        glob = List("go.mod", "go.sum")
+        check = "trivy fs terraform/test/go.mod --severity HIGH,CRITICAL --exit-code 1"
+      }
+      ["yamllint"] {
+        glob = List("*.yml", "*.yaml")
+        check = "mise exec -- yamllint ."
+      }
+      ["prettier"] {
+        glob = List("*.yml", "*.yaml")
+        check = "mise exec -- prettier --check '**/*.{yml,yaml}'"
+      }
+      ["checkov"] {
+        glob = List("*.tf")
+        check = "checkov -d terraform/ --config-file .checkov.yml --compact --quiet"
       }
     }
   }

@@ -2,10 +2,10 @@
 
 ## Control Plane Costs
 
-| Component | Talos | EKS |
-|-----------|-------|-----|
+| Component         | Talos                    | EKS           |
+|-------------------|--------------------------|---------------|
 | **Control Plane** | Included in worker nodes | **$72/month** |
-| **Management** | Self-managed | AWS managed |
+| **Management**    | Self-managed             | AWS managed   |
 
 ## Total Cost Comparison
 
@@ -63,10 +63,10 @@
 
 | Cluster Size | Talos Cost | EKS Cost | Savings | % Savings |
 |--------------|------------|----------|---------|-----------|
-| **3 nodes** | $73 | $129 | $56 | 43% |
-| **6 nodes** | $208 | $264 | $56 | 21% |
-| **12 nodes** | $760 | $816 | $56 | 7% |
-| **24 nodes** | $1,480 | $1,536 | $56 | 4% |
+| **3 nodes**  | $73        | $129     | $56     | 43%       |
+| **6 nodes**  | $208       | $264     | $56     | 21%       |
+| **12 nodes** | $760       | $816     | $56     | 7%        |
+| **24 nodes** | $1,480     | $1,536   | $56     | 4%        |
 
 ## Key Insights
 
@@ -158,14 +158,14 @@ node_groups = {
 
 ## Recommendation Matrix
 
-| Use Case | Recommendation | Reason |
-|----------|----------------|---------|
-| **Dev/Test** | Talos | 43% cost savings |
-| **Small Production** | Talos | 21% savings + control |
-| **Large Production** | EKS | Managed service value |
-| **Multi-tenant** | EKS | Better isolation options |
-| **Compliance** | EKS | AWS responsibility model |
-| **Cost-sensitive** | Talos | Consistent savings |
+| Use Case             | Recommendation | Reason                   |
+|----------------------|----------------|--------------------------|
+| **Dev/Test**         | Talos          | 43% cost savings         |
+| **Small Production** | Talos          | 21% savings + control    |
+| **Large Production** | EKS            | Managed service value    |
+| **Multi-tenant**     | EKS            | Better isolation options |
+| **Compliance**       | EKS            | AWS responsibility model |
+| **Cost-sensitive**   | Talos          | Consistent savings       |
 
 ## Bottom Line
 

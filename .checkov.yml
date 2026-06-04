@@ -1,22 +1,11 @@
 skip-check:
-  # Example Terraform modules — intentionally simplified for demonstration
-  - CKV_AWS_136  # ECR KMS encryption (example module)
-  - CKV_AWS_23   # Security group descriptions (example module)
-  - CKV_AWS_31   # ElastiCache transit encryption (example module)
-  - CKV_AWS_191  # ElastiCache KMS CMK (example module)
-  - CKV_AWS_129  # RDS logging (example module)
-  - CKV_AWS_161  # RDS IAM auth (example module)
-  - CKV_AWS_118  # RDS enhanced monitoring (example module)
-  - CKV_AWS_354  # RDS Performance Insights KMS (example module)
-  - CKV_AWS_88   # EC2 public IP (Talos needs public for bootstrap)
-  - CKV_AWS_91   # ELB access logging (example module)
-  - CKV_AWS_382  # SG egress 0.0.0.0 (example module)
-  - CKV_AWS_355  # IAM wildcard resource (CCM policy)
-  - CKV_AWS_290  # IAM write without constraints (CCM policy)
-  - CKV_AWS_18   # S3 access logging (example module)
-  - CKV_AWS_144  # S3 cross-region replication (example module)
-  - CKV_TF_1     # Module source commit hash (using registry)
-  - CKV_SECRET_6 # Base64 high entropy in example values
-  - CKV_GHA_7    # workflow_dispatch inputs (intentional)
+  - CKV_AWS_88 # Talos needs public IP for bootstrap
+  - CKV_AWS_144 # Cross-region replication too complex for example
+  - CKV_AWS_382 # Cluster egress needs internet access
+  - CKV_AWS_355 # CCM needs broad ELB permissions (AWS pattern)
+  - CKV_AWS_290 # CCM needs write without constraints (AWS pattern)
+  - CKV_TF_1 # Using local modules not registry
+  - CKV_SECRET_6 # Example values file
+  - CKV_GHA_7 # workflow_dispatch inputs intentional
 skip-path:
   - charts/backstage/templates/

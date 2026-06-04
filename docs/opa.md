@@ -6,15 +6,15 @@ A general-purpose policy engine that evaluates structured data against declarati
 
 ## When to Use OPA
 
-| Scenario | Use OPA? | Why |
-|----------|----------|-----|
-| Enforce encryption on all databases | ✅ | Declarative rule, catches at plan time |
-| Require approval for prod deploys | ✅ | Workflow governance |
-| Block hardcoded secrets in code | ✅ | Pattern matching on file content |
-| Require specific tags on resources | ✅ | Metadata compliance |
-| Validate instance types are valid | ❌ | Use tflint (provider-aware) |
-| Check HCL syntax | ❌ | Use `tofu validate` |
-| Test module creates correct resources | ❌ | Use Terratest or `tofu test` |
+| Scenario                              | Use OPA? | Why                                    |
+|---------------------------------------|----------|----------------------------------------|
+| Enforce encryption on all databases   | ✅        | Declarative rule, catches at plan time |
+| Require approval for prod deploys     | ✅        | Workflow governance                    |
+| Block hardcoded secrets in code       | ✅        | Pattern matching on file content       |
+| Require specific tags on resources    | ✅        | Metadata compliance                    |
+| Validate instance types are valid     | ❌        | Use tflint (provider-aware)            |
+| Check HCL syntax                      | ❌        | Use `tofu validate`                    |
+| Test module creates correct resources | ❌        | Use Terratest or `tofu test`           |
 
 ## How OPA Fits in the Pipeline
 
@@ -26,13 +26,13 @@ Code Push → tofu plan → tofu show -json → OPA eval → Pass/Fail → tofu 
 
 ### Enforcement Points
 
-| Point | What's Evaluated | Example |
-|-------|-----------------|---------|
-| **PR time** | Policy logic tests | `opa test policies/ -v` |
-| **Pre-plan** | Source code scanning | Secret detection in `.tf` files |
-| **Post-plan** | Plan JSON | Encryption, tagging, Multi-AZ compliance |
-| **Pre-apply** | Deployment approval | Staging/production gating |
-| **Post-apply** | State file | Drift detection (optional) |
+| Point          | What's Evaluated     | Example                                  |
+|----------------|----------------------|------------------------------------------|
+| **PR time**    | Policy logic tests   | `opa test policies/ -v`                  |
+| **Pre-plan**   | Source code scanning | Secret detection in `.tf` files          |
+| **Post-plan**  | Plan JSON            | Encryption, tagging, Multi-AZ compliance |
+| **Pre-apply**  | Deployment approval  | Staging/production gating                |
+| **Post-apply** | State file           | Drift detection (optional)               |
 
 ## How We Apply It
 
@@ -139,11 +139,11 @@ policies/opa/
 
 ## OPA vs Alternatives
 
-| Tool | Best For | Language |
-|------|----------|----------|
-| **OPA/Conftest** | Custom policies, Terraform plan validation | Rego |
-| **Sentinel** | Terraform Cloud/Enterprise (HashiCorp native) | Sentinel |
-| **Checkov** | Pre-built compliance checks (CIS, SOC2) | Python/YAML |
-| **tfsec/Trivy** | Security scanning with built-in rules | Go |
+| Tool             | Best For                                      | Language    |
+|------------------|-----------------------------------------------|-------------|
+| **OPA/Conftest** | Custom policies, Terraform plan validation    | Rego        |
+| **Sentinel**     | Terraform Cloud/Enterprise (HashiCorp native) | Sentinel    |
+| **Checkov**      | Pre-built compliance checks (CIS, SOC2)       | Python/YAML |
+| **tfsec/Trivy**  | Security scanning with built-in rules         | Go          |
 
 **Our choice**: OPA — required by test spec, most flexible, works with any CI/CD.

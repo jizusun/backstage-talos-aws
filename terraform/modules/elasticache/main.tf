@@ -9,6 +9,7 @@ resource "aws_security_group" "redis" {
   vpc_id      = var.vpc_id
 
   ingress {
+    description     = "Redis access from Talos cluster"
     from_port       = 6379
     to_port         = 6379
     protocol        = "tcp"
@@ -31,8 +32,11 @@ resource "aws_elasticache_replication_group" "this" {
   subnet_group_name  = aws_elasticache_subnet_group.this.name
   security_group_ids = [aws_security_group.redis.id]
 
+  automatic_failover_enabled = true
   at_rest_encryption_enabled = true
   transit_encryption_enabled = true
+  kms_key_id                 = var.kms_key_id
+  auth_token                 = var.auth_token
 
   tags = var.tags
 }

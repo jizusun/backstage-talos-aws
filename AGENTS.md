@@ -77,18 +77,18 @@ mise run test:e2e   # Layer 3: real AWS (needs credentials)
 
 ### What Gets Tested Where
 
-| Tool | Layer | What It Validates |
-|------|-------|-------------------|
-| `tofu validate` | 1 | HCL syntax, module structure |
-| `tflint` | 1 | Provider-specific rules, deprecations |
-| `trivy` | 1 | Security misconfigurations |
-| `opa test` | 1 | Policy logic correctness |
-| `helm lint/template` | 1 | Chart validity |
-| Terratest (Go) | 1+ | Module init/validate in isolation |
-| `tofu test` | 1+ | Module assertions with mock_provider |
-| Kind + Helm dry-run | 2 | K8s deployment validity |
-| OPA eval | 2 | Approval gates, secret scanning |
-| `tofu apply` (AWS) | 3 | Real infrastructure creation |
+| Tool                 | Layer | What It Validates                     |
+|----------------------|-------|---------------------------------------|
+| `tofu validate`      | 1     | HCL syntax, module structure          |
+| `tflint`             | 1     | Provider-specific rules, deprecations |
+| `trivy`              | 1     | Security misconfigurations            |
+| `opa test`           | 1     | Policy logic correctness              |
+| `helm lint/template` | 1     | Chart validity                        |
+| Terratest (Go)       | 1+    | Module init/validate in isolation     |
+| `tofu test`          | 1+    | Module assertions with mock_provider  |
+| Kind + Helm dry-run  | 2     | K8s deployment validity               |
+| OPA eval             | 2     | Approval gates, secret scanning       |
+| `tofu apply` (AWS)   | 3     | Real infrastructure creation          |
 
 ### Terratest vs `tofu test`
 

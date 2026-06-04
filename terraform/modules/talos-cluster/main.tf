@@ -154,7 +154,13 @@ resource "aws_lb" "api" {
 
   enable_cross_zone_load_balancing = true
   enable_deletion_protection       = true
-  tags                             = var.tags
+
+  access_logs {
+    bucket  = var.lb_access_logs_bucket
+    enabled = var.lb_access_logs_bucket != ""
+  }
+
+  tags = var.tags
 }
 
 resource "aws_lb_target_group" "k8s_api" {
@@ -226,14 +232,16 @@ resource "aws_security_group" "cluster" {
 
   # Internal cluster communication
   ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    self      = true
+    description = "Internal cluster communication"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
   }
 
   # Kubernetes API
   ingress {
+    description = "Kubernetes API access"
     from_port   = 6443
     to_port     = 6443
     protocol    = "tcp"
@@ -242,6 +250,7 @@ resource "aws_security_group" "cluster" {
 
   # Talos API
   ingress {
+    description = "Talos API access"
     from_port   = 50000
     to_port     = 50000
     protocol    = "tcp"
@@ -249,6 +258,7 @@ resource "aws_security_group" "cluster" {
   }
 
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
