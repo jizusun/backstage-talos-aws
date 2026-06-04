@@ -47,12 +47,12 @@ variable "allowed_cidrs" {
   default = ["0.0.0.0/0"]
 }
 
-variable "lb_access_logs_bucket" {
-  type    = string
-  default = ""
-}
-
 variable "tags" {
   type    = map(string)
   default = {}
+}
+
+variable "region" {
+  type    = string
+  default = "us-east-1"
 }
