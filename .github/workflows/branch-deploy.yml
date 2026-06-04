@@ -1,0 +1,46 @@
+name: branch-deploy
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  deployments: write
+  contents: write
+  checks: read
+  statuses: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: github/branch-deploy@v11
+        id: branch-deploy
+        with:
+          trigger: ".deploy"
+          noop_trigger: ".noop"
+          environment: production
+          environment_targets: "production,staging,dev"
+          stable_branch: main
+
+      - uses: actions/checkout@v4
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
+        with:
+          ref: ${{ steps.branch-deploy.outputs.sha }}
+
+      - uses: jdx/mise-action@v2
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
+
+      - name: noop deploy
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+        run: |
+          mise run lint
+          tofu plan -backend=false
+
+      - name: deploy
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
+        run: |
+          echo "Deploying to ${{ steps.branch-deploy.outputs.environment }}"
+          # Add real deployment logic here
