@@ -18,8 +18,14 @@ DISABLE:
   - COPYPASTE # Comment to enable checks of excessive copy-pastes
   - SPELL # Comment to enable checks of spelling mistakes
 
+DISABLE_LINTERS:
+  - TERRAFORM_TERRASCAN # Doesn't support optional(type, default) OpenTofu syntax
+
 MARKDOWN_DEFAULT_STYLE: rumdl
 SHOW_ELAPSED_TIME: true
+
+# tflint: use project config for correct plugins
+TERRAFORM_TFLINT_CONFIG_FILE: terraform/.tflint.hcl
 
 # Uncomment if you want MegaLinter to detect errors but not block CI to pass
 # DISABLE_ERRORS: true
