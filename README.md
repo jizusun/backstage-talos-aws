@@ -1,10 +1,12 @@
-# Terraform Harness Blueprint
+# Platform Engineering Harness Blueprint
 
-A GitHub template for building **infrastructure test harnesses** around Terraform/OpenTofu projects. The emphasis is on engineering rigor — testing pyramid, policy-as-code, CI/CD validation gates — not the infrastructure itself.
+A GitHub template for building **infrastructure test harnesses** around Terraform/OpenTofu projects. The emphasis is on platform engineering rigor — testing pyramid, policy-as-code, CI/CD validation gates, module governance — not the infrastructure itself.
 
 Backstage on Talos Linux (AWS) is included as an **example implementation** to demonstrate the harness patterns in a realistic context.
 
-## What This Template Provides
+## Harness Capabilities
+
+### Automated Testing Framework
 
 ```text
       E2E (AWS)           ← Real infra, expensive, weekly
@@ -12,32 +14,81 @@ Backstage on Talos Linux (AWS) is included as an **example implementation** to d
   Unit (lint/validate)    ← tofu + tflint + trivy + opa + helm, $0, seconds
 ```
 
-95% of issues caught at $0 cost before touching a cloud provider.
+Most issues caught at $0 cost before touching a cloud provider.
 
-### Harness Components
+| Tool | Layer | What It Validates |
+|------|-------|-------------------|
+| `tofu validate` | 1 | HCL syntax, module structure |
+| `tflint` | 1 | Provider-specific rules, deprecations |
+| `trivy` | 1 | Security misconfigurations |
+| `opa test` | 1 | Policy logic correctness |
+| `helm lint/template` | 1 | Chart validity |
+| Terratest (Go) | 1 | Module init/validate in isolation |
+| `tofu test` | 1 | Module assertions with mock_provider |
+| Kind + Helm dry-run | 2 | K8s deployment validity |
+| OPA eval | 2 | Approval gates, secret scanning |
+| `tofu apply` (AWS) | 3 | Real infrastructure creation |
 
-| Component | Purpose |
-|-----------|---------|
-| OpenTofu validate + tflint + trivy | Static analysis and security scanning |
-| `tofu test` with mock_provider | Logic assertions without cloud credentials |
-| Terratest (Go) | Structural validation, apply/destroy cycles |
-| OPA/Rego policies + tests | Governance gates (approval, secrets, compliance) |
-| Kind cluster + Helm lint | Kubernetes deployment validation |
-| GitHub Actions pipelines | Automated validation on every PR |
-
-### Policy Gates (OPA)
+### Policy-as-Code (OPA)
 
 - **Deployment approval** — staging/production require authorized approver
 - **Secret scanning** — blocks hardcoded credentials
 - **Infrastructure compliance** — encryption, tagging, multi-AZ enforcement
+- TODO: CIS benchmark policies
+- TODO: Cost guardrails (instance size limits, storage caps)
 
-### CI/CD Flow
+### Security & Compliance
+
+- Trivy scanning for security misconfigurations in HCL
+- OPA policies enforcing encryption-at-rest, tagging standards
+- Secret detection in plan output
+- TODO: SAST/DAST integration
+- TODO: Compliance report generation (SOC2, HIPAA mappings)
+- TODO: Drift detection and remediation
+
+### CI/CD Pipelines
 
 ```text
 PR:            lint → unit test → integration test → policy check
 dev/test/perf: push → validate → plan → apply (automatic)
 staging/prod:  push → validate → plan → approval → apply (manual gate)
 ```
+
+- GitHub Actions workflows for full PR validation
+- Environment promotion with manual approval gates
+- TODO: Harness pipeline examples (parallel to GitHub Actions)
+- TODO: Rollback automation on failed applies
+- `branch-deploy` for deployment via PR comments (`.deploy`, `.noop`)
+- `release-please` for automated release pipeline (changelog, versioning, tagging)
+
+### Module Composition & Governance
+
+- Workspaces for environment separation
+- `environments/*.tfvars` for per-environment config
+- Remote state (S3) with native locking
+- One module per infrastructure concern (vpc, rds, ecr, etc.)
+- TODO: Module versioning strategy (git tags + registry)
+- TODO: Module release pipeline (test → tag → publish)
+- TODO: Consumer documentation template per module
+
+### DR/HA Patterns
+
+- TODO: Multi-AZ deployment patterns in example modules
+- TODO: Backup/restore validation tests
+- TODO: Failover simulation in integration tests
+
+### Cost Optimization
+
+- TODO: Infracost integration for PR cost estimates
+- TODO: OPA policies for cost guardrails (instance families, storage tiers)
+- TODO: FinOps tagging enforcement policies
+
+### Multi-Team Consumption
+
+- TODO: Module registry setup (Terraform Cloud or S3-backed)
+- TODO: Self-service module catalog (Backstage integration)
+- TODO: Consumer onboarding guide
+- TODO: SLA/SLO definitions for shared modules
 
 ## Example Implementation
 
@@ -63,8 +114,8 @@ mise install
 
 # Run the full harness locally
 mise run lint        # Layer 1: static analysis
-mise run test:ut     # Layer 1: module validation (no AWS needed)
-mise run test:it     # Layer 2: Kind + OPA + Helm (no AWS needed)
+mise run test:unit     # Layer 1: module validation (no AWS needed)
+mise run test:integration     # Layer 2: Kind + OPA + Helm (no AWS needed)
 mise run test:e2e    # Layer 3: real AWS (needs credentials)
 ```
 
@@ -86,21 +137,6 @@ mise run test:e2e    # Layer 3: real AWS (needs credentials)
 │   └── application.yml           # App deploy on push to main
 └── docs/                         # Architecture and design docs
 ```
-
-## Testing Details
-
-| Tool | Layer | What It Validates |
-|------|-------|-------------------|
-| `tofu validate` | 1 | HCL syntax, module structure |
-| `tflint` | 1 | Provider-specific rules, deprecations |
-| `trivy` | 1 | Security misconfigurations |
-| `opa test` | 1 | Policy logic correctness |
-| `helm lint/template` | 1 | Chart validity |
-| Terratest (Go) | 1+ | Module init/validate in isolation |
-| `tofu test` | 1+ | Module assertions with mock_provider |
-| Kind + Helm dry-run | 2 | K8s deployment validity |
-| OPA eval | 2 | Approval gates, secret scanning |
-| `tofu apply` (AWS) | 3 | Real infrastructure creation |
 
 ## Adapting This Template
 
@@ -127,6 +163,7 @@ mise run test:e2e    # Layer 3: real AWS (needs credentials)
 - [Terratest Guide](docs/terratest.md)
 - [OPA Guide](docs/opa.md)
 - [Implementation Plan](docs/backstage-platform-engineering-plan.md)
+- TODO: Zensical for documentation site generation
 
 ## License
 

@@ -21,7 +21,7 @@
 ## Unit Tests ($0, seconds)
 
 **Run**: Every commit, every PR  
-**Task**: `mise run lint` + `mise run test:ut`
+**Task**: `mise run lint` + `mise run test:unit`
 
 | What | Tool | Validates |
 |------|------|-----------|
@@ -39,7 +39,7 @@
 ## Integration Tests ($0, minutes)
 
 **Run**: Every PR, before merge  
-**Task**: `mise run test:it` + `mise run test:apply`
+**Task**: `mise run test:integration` + `mise run test:apply`
 
 | What | Tool | Validates |
 |------|------|-----------|
@@ -69,8 +69,8 @@
 
 ```bash
 mise run lint          # Unit: static analysis
-mise run test:ut       # Unit: Terratest module validation
-mise run test:it       # Integration: Kind, OPA eval, secret scan
+mise run test:unit       # Unit: Terratest module validation
+mise run test:integration       # Integration: Kind, OPA eval, secret scan
 mise run test:apply    # Integration: kumo apply/destroy
 mise run test:e2e      # E2E: real AWS (needs credentials)
 ```

@@ -37,7 +37,7 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 - Use `#!/usr/bin/env bun` shebang and `//MISE` directives for metadata
 - Use Bun's `$` shell API (`import { $ } from "bun"`) for command execution
 - No bash scripts, no Python scripts — Bun is the single scripting runtime
-- Task names: short, lowercase, colon-separated for grouping (`test:ut`, `test:it`)
+- Task names: short, lowercase, colon-separated for grouping (`test:unit`, `test:integration`)
 
 ### Policies (OPA/Rego)
 
@@ -69,8 +69,8 @@ The harness is the core value of this template. Everything else is replaceable.
 
 ```bash
 mise run lint       # Layer 1: static analysis
-mise run test:ut    # Layer 1: Terratest module validation
-mise run test:it    # Layer 2: Kind + OPA + secret scan (depends on lint + test:ut)
+mise run test:unit    # Layer 1: Terratest module validation
+mise run test:integration    # Layer 2: Kind + OPA + secret scan (depends on lint + test:unit)
 mise run test:apply # Layer 2: kumo apply/destroy
 mise run test:e2e   # Layer 3: real AWS (needs credentials)
 ```
@@ -159,7 +159,7 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 
 ### When Writing CI Workflows
 
-- Always validate locally first (`mise run lint && mise run test:it`) before pushing to see CI results
+- Always validate locally first (`mise run lint && mise run test:integration`) before pushing to see CI results
 - `mise-action` installs **all** tools in `mise.toml` — if one fails, the whole step fails
 - Check actual CI error logs before assuming which tool caused the failure
 - Commit chart dependencies and lock files — don't rely on network fetches during CI
