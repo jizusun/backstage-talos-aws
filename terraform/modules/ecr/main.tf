@@ -1,22 +1,15 @@
-resource "aws_ecr_repository" "this" {
-  name                 = "${var.cluster_name}/backstage"
-  image_tag_mutability = "IMMUTABLE"
+module "ecr" {
+  #checkov:skip=CKV_TF_1:Using versioned registry module
+  source  = "terraform-aws-modules/ecr/aws"
+  version = "~> 2.0"
 
-  image_scanning_configuration {
-    scan_on_push = true
-  }
+  repository_name                 = "${var.cluster_name}/backstage"
+  repository_image_tag_mutability = "IMMUTABLE"
 
-  encryption_configuration {
-    encryption_type = "KMS"
-  }
+  repository_image_scan_on_push = true
+  repository_encryption_type    = "KMS"
 
-  tags = var.tags
-}
-
-resource "aws_ecr_lifecycle_policy" "this" {
-  repository = aws_ecr_repository.this.name
-
-  policy = jsonencode({
+  repository_lifecycle_policy = jsonencode({
     rules = [{
       rulePriority = 1
       description  = "Keep last 20 images"
@@ -28,4 +21,6 @@ resource "aws_ecr_lifecycle_policy" "this" {
       action = { type = "expire" }
     }]
   })
+
+  tags = var.tags
 }

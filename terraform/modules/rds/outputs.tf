@@ -1,11 +1,7 @@
 output "endpoint" {
-  value = aws_db_instance.this.endpoint
+  value = module.db.db_instance_endpoint
 }
 
-output "address" {
-  value = aws_db_instance.this.address
-}
-
-output "port" {
-  value = aws_db_instance.this.port
+output "db_instance_id" {
+  value = module.db.db_instance_identifier
 }

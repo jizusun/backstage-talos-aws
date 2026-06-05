@@ -1,26 +1,8 @@
-resource "aws_db_subnet_group" "this" {
-  name       = "${var.cluster_name}-db"
-  subnet_ids = var.private_subnet_ids
-  tags       = var.tags
-}
+module "db" {
+  #checkov:skip=CKV_TF_1:Using versioned registry module
+  source  = "terraform-aws-modules/rds/aws"
+  version = "~> 6.0"
 
-resource "aws_security_group" "db" {
-  name        = "${var.cluster_name}-db"
-  description = "RDS PostgreSQL access from Talos cluster"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    description     = "PostgreSQL access from Talos cluster"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [var.cluster_security_group_id]
-  }
-
-  tags = var.tags
-}
-
-resource "aws_db_instance" "this" {
   identifier = "${var.cluster_name}-backstage"
 
   engine         = "postgres"
@@ -49,47 +31,36 @@ resource "aws_db_instance" "this" {
   enabled_cloudwatch_logs_exports     = ["postgresql", "upgrade"]
   iam_database_authentication_enabled = true
   monitoring_interval                 = 60
-  monitoring_role_arn                 = aws_iam_role.rds_monitoring.arn
-  parameter_group_name                = aws_db_parameter_group.this.name
+  create_monitoring_role              = true
+
+  family = "postgres15"
+  parameters = [
+    { name = "rds.force_ssl", value = "1" },
+    { name = "pgaudit.log", value = "all" },
+    { name = "log_statement", value = "all" }
+  ]
 
   tags = var.tags
 }
 
-resource "aws_iam_role" "rds_monitoring" {
-  name = "${var.cluster_name}-rds-monitoring"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Principal = { Service = "monitoring.rds.amazonaws.com" }
-      Action    = "sts:AssumeRole"
-    }]
-  })
+resource "aws_db_subnet_group" "this" {
+  name       = "${var.cluster_name}-db"
+  subnet_ids = var.private_subnet_ids
+  tags       = var.tags
 }
 
-resource "aws_iam_role_policy_attachment" "rds_monitoring" {
-  role       = aws_iam_role.rds_monitoring.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
-}
+resource "aws_security_group" "db" {
+  #checkov:skip=CKV2_AWS_5:SG is attached via module.db vpc_security_group_ids
+  name        = "${var.cluster_name}-db"
+  description = "RDS PostgreSQL access from Talos cluster"
+  vpc_id      = var.vpc_id
 
-resource "aws_db_parameter_group" "this" {
-  name   = "${var.cluster_name}-pg15"
-  family = "postgres15"
-
-  parameter {
-    name  = "pgaudit.log"
-    value = "all"
-  }
-
-  parameter {
-    name  = "log_statement"
-    value = "all"
-  }
-
-  parameter {
-    name  = "rds.force_ssl"
-    value = "1"
+  ingress {
+    description     = "PostgreSQL access from Talos cluster"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [var.cluster_security_group_id]
   }
 
   tags = var.tags
