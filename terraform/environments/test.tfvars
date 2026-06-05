@@ -1,7 +1,6 @@
 cluster_name = "backstage-test"
 environment  = "test"
 region       = "us-east-1"
-multi_region = false
 vpc_cidr     = "10.1.0.0/16"
 
 control_plane = {
@@ -13,9 +12,6 @@ worker_groups = [{
   name          = "default"
   instance_type = "t3.medium"
   desired_size  = 2
-  min_size      = 2
-  max_size      = 4
-  capacity_type = "ON_DEMAND"
 }]
 
 database = {

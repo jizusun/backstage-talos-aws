@@ -4,6 +4,7 @@ extends: default
 ignore:
   - charts/backstage/templates/
   - raw/
+  - "**/.terraform/"
 
 rules:
   line-length:

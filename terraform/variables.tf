@@ -1,13 +1,7 @@
 variable "region" {
-  description = "Primary AWS region"
+  description = "AWS region"
   type        = string
   default     = "us-east-1"
-}
-
-variable "secondary_region" {
-  description = "Secondary AWS region for multi-region deployments"
-  type        = string
-  default     = "us-west-2"
 }
 
 variable "cluster_name" {
@@ -30,16 +24,22 @@ variable "environment" {
   }
 }
 
-variable "multi_region" {
-  description = "Enable multi-region deployment"
-  type        = bool
-  default     = false
-}
-
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type        = string
   default     = "10.0.0.0/16"
+}
+
+variable "talos_version" {
+  description = "Talos Linux version"
+  type        = string
+  default     = "v1.12.6"
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version"
+  type        = string
+  default     = "1.33.1"
 }
 
 variable "control_plane" {
@@ -56,10 +56,13 @@ variable "worker_groups" {
     name          = string
     instance_type = string
     desired_size  = number
-    min_size      = number
-    max_size      = number
-    capacity_type = optional(string, "ON_DEMAND")
   }))
+}
+
+variable "allowed_cidrs" {
+  description = "CIDRs allowed to access the Kubernetes/Talos API"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
 }
 
 variable "database" {
@@ -72,14 +75,14 @@ variable "database" {
   })
 }
 
-variable "tags" {
-  description = "Additional tags for all resources"
-  type        = map(string)
-  default     = {}
-}
-
 variable "db_password" {
   description = "Database password"
   type        = string
   sensitive   = true
+}
+
+variable "tags" {
+  description = "Additional tags for all resources"
+  type        = map(string)
+  default     = {}
 }

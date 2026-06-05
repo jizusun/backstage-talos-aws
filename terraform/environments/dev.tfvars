@@ -1,7 +1,6 @@
 cluster_name = "backstage-dev"
 environment  = "dev"
 region       = "us-east-1"
-multi_region = false
 vpc_cidr     = "10.0.0.0/16"
 
 control_plane = {
@@ -13,9 +12,6 @@ worker_groups = [{
   name          = "default"
   instance_type = "t3.small"
   desired_size  = 1
-  min_size      = 1
-  max_size      = 2
-  capacity_type = "SPOT"
 }]
 
 database = {

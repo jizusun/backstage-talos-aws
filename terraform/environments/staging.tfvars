@@ -1,9 +1,7 @@
-cluster_name     = "backstage-staging"
-environment      = "staging"
-region           = "us-east-1"
-secondary_region = "us-west-2"
-multi_region     = true
-vpc_cidr         = "10.3.0.0/16"
+cluster_name = "backstage-staging"
+environment  = "staging"
+region       = "us-east-1"
+vpc_cidr     = "10.3.0.0/16"
 
 control_plane = {
   count         = 3
@@ -14,9 +12,6 @@ worker_groups = [{
   name          = "default"
   instance_type = "m5.large"
   desired_size  = 2
-  min_size      = 2
-  max_size      = 5
-  capacity_type = "ON_DEMAND"
 }]
 
 database = {

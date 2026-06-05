@@ -74,16 +74,3 @@ func TestECRModuleValidation(t *testing.T) {
 	require.NoError(t, err)
 	assert.Contains(t, out, "Success")
 }
-
-func TestTalosClusterModuleValidation(t *testing.T) {
-	t.Parallel()
-	opts := &terraform.Options{
-		TerraformDir:    "../modules/talos-cluster",
-		TerraformBinary: "tofu",
-		NoColor:         true,
-	}
-	terraform.Init(t, opts)
-	out, err := terraform.ValidateE(t, opts)
-	require.NoError(t, err)
-	assert.Contains(t, out, "Success")
-}

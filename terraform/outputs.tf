@@ -1,16 +1,16 @@
 output "cluster_name" {
   description = "Talos cluster name"
-  value       = module.talos_cluster.cluster_name
+  value       = module.talos.cluster_name
 }
 
-output "control_plane_ip" {
-  description = "Control plane load balancer IP"
-  value       = module.talos_cluster.lb_dns_name
+output "lb_dns_name" {
+  description = "Cluster load balancer DNS name"
+  value       = module.talos.lb_dns_name
 }
 
 output "kubeconfig_path" {
-  description = "Path to kubeconfig file"
-  value       = module.talos_cluster.kubeconfig_path
+  description = "Path to generated kubeconfig file"
+  value       = module.talos.path_to_kubeconfig_file
 }
 
 output "database_endpoint" {
@@ -19,7 +19,7 @@ output "database_endpoint" {
   sensitive   = true
 }
 
-output "backstage_url" {
-  description = "Backstage application URL"
-  value       = module.talos_cluster.lb_dns_name
+output "ecr_repository_url" {
+  description = "ECR repository URL"
+  value       = module.ecr.repository_url
 }
