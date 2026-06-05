@@ -1,6 +1,8 @@
 skip-check:
   - CKV_SECRET_6 # Base64 high entropy string in example values file
-  - CKV_GHA_7 # workflow_dispatch inputs are intentional for environment selection
+  - CKV_GHA_7 # workflow_dispatch inputs are intentional
   - CKV2_GHA_1 # Deployment workflows require write permissions
+  - CKV_TF_2 # Using versioned registry modules with version constraint
 skip-path:
   - charts/backstage/templates/
+  - charts/backstage/charts/

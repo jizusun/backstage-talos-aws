@@ -27,5 +27,8 @@ SHOW_ELAPSED_TIME: true
 # tflint: use project config for correct plugins
 TERRAFORM_TFLINT_CONFIG_FILE: terraform/.tflint.hcl
 
+# zizmor: run offline to avoid GitHub API rate limits in CI
+ACTION_ZIZMOR_ARGUMENTS: "--offline"
+
 # Uncomment if you want MegaLinter to detect errors but not block CI to pass
 # DISABLE_ERRORS: true
