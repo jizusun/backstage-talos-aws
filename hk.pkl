@@ -62,4 +62,16 @@ hooks {
       }
     }
   }
+  ["pre-push"] {
+    steps {
+      ["test-unit"] {
+        glob = List("*.tf", "*.go")
+        check = "cd terraform/test && go test -v -timeout 5m -run 'TestVPC|TestRDS|TestElastiCache|TestS3|TestECR'"
+      }
+      ["test-integration"] {
+        glob = List("*.tf", "*.rego", "charts/**/*")
+        check = "mise run test:integration"
+      }
+    }
+  }
 }
