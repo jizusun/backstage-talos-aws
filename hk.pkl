@@ -60,10 +60,6 @@ hooks {
         glob = List("*.tf")
         check = "checkov -d terraform/ --config-file .checkov.yml --compact --quiet"
       }
-    }
-  }
-  ["pre-push"] {
-    steps {
       ["test-unit"] {
         glob = List("*.tf", "*.go")
         check = "cd terraform/test && go test -v -timeout 5m -run 'TestVPC|TestRDS|TestElastiCache|TestS3|TestECR'"
