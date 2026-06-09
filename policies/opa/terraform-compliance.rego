@@ -3,7 +3,23 @@ package terraform.compliance
 import future.keywords.if
 import future.keywords.in
 
-required_tags := {"Environment", "ManagedBy"}
+required_tags := {"Project", "Environment", "ManagedBy"}
+
+# AWS resource types that support tags
+taggable_types := {
+  "aws_instance",
+  "aws_db_instance",
+  "aws_s3_bucket",
+  "aws_ecr_repository",
+  "aws_elasticache_replication_group",
+  "aws_security_group",
+  "aws_lb",
+  "aws_vpc",
+  "aws_subnet",
+  "aws_iam_role",
+  "aws_iam_policy",
+  "aws_eip",
+}
 
 # All RDS instances must have encryption enabled
 violation[{"msg": msg}] if {
@@ -38,12 +54,25 @@ violation[{"msg": msg}] if {
   msg := sprintf("%s: production database must be Multi-AZ", [resource.address])
 }
 
-# All resources must have required tags
+# All taggable resources must have required tags
 violation[{"msg": msg}] if {
   resource := input.resource_changes[_]
-  resource.change.after.tags != null
-  provided := {tag | resource.change.after.tags[tag]}
+  resource.type in taggable_types
+  resource.change.actions[_] in ["create", "update"]
+  tags := object.get(resource.change.after, "tags", {})
+  tags != null
+  provided := {tag | tags[tag]}
   missing := required_tags - provided
   count(missing) > 0
   msg := sprintf("%s: missing required tags %v", [resource.address, missing])
+}
+
+# All taggable resources must not have null tags
+violation[{"msg": msg}] if {
+  resource := input.resource_changes[_]
+  resource.type in taggable_types
+  resource.change.actions[_] in ["create", "update"]
+  tags := object.get(resource.change.after, "tags", null)
+  tags == null
+  msg := sprintf("%s: resource has no tags, required: %v", [resource.address, required_tags])
 }
