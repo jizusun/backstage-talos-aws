@@ -1,15 +1,9 @@
 #!/usr/bin/env bun
-//MISE description="E2E tests: deploy to real AWS"
+//MISE description="E2E tests: real AWS apply + verification (Terratest)"
 //MISE depends=["lint"]
 import { $ } from "bun";
 
-const env = Bun.argv[2] || "dev";
-
-console.log(`═══ E2E Tests (${env}) ═══`);
-await $`mise run plan ${env}`;
-await $`tofu -chdir=terraform apply plans/${env}.plan`;
-const ip = await $`tofu -chdir=terraform output -raw control_plane_ip`.text();
-await $`talosctl health --nodes ${ip.trim()}`;
-await $`kubectl get nodes`;
-await $`helm upgrade --install backstage charts/backstage/ --values charts/backstage/values/${env}.yaml --wait`;
-console.log(`\n✅ E2E tests passed (${env})`);
+console.log("═══ E2E Tests (real AWS) ═══");
+console.log("Running Terratest E2E: apply → verify → destroy");
+await $`cd terraform/test && E2E=1 go test -v -run TestE2E -timeout 30m`;
+console.log("\n✅ E2E tests passed");

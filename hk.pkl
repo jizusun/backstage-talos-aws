@@ -61,8 +61,8 @@ hooks {
         check = "checkov -d terraform/ --config-file .checkov.yml --compact --quiet"
       }
       ["test-unit"] {
-        glob = List("*.tf", "*.go")
-        check = "cd terraform/test && go test -v -timeout 5m -run 'TestVPC|TestRDS|TestElastiCache|TestS3|TestECR'"
+        glob = List("*.tf", "*.tftest.hcl")
+        check = "tofu -chdir=terraform/modules/elasticache test && tofu -chdir=terraform/modules/s3 test"
       }
       ["test-integration"] {
         glob = List("*.tf", "*.rego", "charts/**/*")
