@@ -5,5 +5,5 @@ import { $ } from "bun";
 
 console.log("═══ E2E Tests (real AWS) ═══");
 console.log("Running Terratest E2E: apply → verify → destroy");
-await $`cd terraform/test && E2E=1 go test -v -run TestE2E -timeout 30m`;
+await $`cd terraform/tests && E2E=1 go test -v -run TestE2E -timeout 30m`;
 console.log("\n✅ E2E tests passed");

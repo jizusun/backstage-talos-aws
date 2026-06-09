@@ -5,11 +5,9 @@ import { $ } from "bun";
 
 console.log("═══ Unit Tests (tofu test) ═══");
 
-// Validate all modules
 console.log("--- tofu validate (all modules) ---");
 await $`tofu -chdir=terraform validate`;
 
-// Run tofu test with mock_provider on compatible modules
 const testableModules = ["elasticache", "s3"];
 for (const mod of testableModules) {
   console.log(`--- tofu test: ${mod} ---`);

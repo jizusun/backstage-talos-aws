@@ -1,88 +1,120 @@
-# Testing Pyramid — Backstage on Talos
+# Testing Pyramid
 
 ```
-              ▲
-             / \
-            / E2E \            ← Real AWS Talos cluster — $50/month
-           /  Tests \
-          /───────────\
-         /             \
-        / Integration    \     ← kumo apply/destroy + Kind + OPA eval — $0
-       /    Tests         \
-      /─────────────────────\
-     /                       \
-    /     Unit Tests           \  ← tofu validate, tflint, trivy, opa test, helm lint — $0
-   /                             \
-  /─────────────────────────────────\
+            /\
+           /  \
+          / E2E\             Terratest · real AWS · $50/month
+         /______\
+        /        \
+       /Integration\         tofu test + kumo · Kind + OPA · $0
+      /______________\
+     /                \
+    /   Unit Tests     \     tofu test (mock_provider) · opa test · $0
+   /____________________\
+  ══════════════════════════
+  │   Static Analysis     │  tofu validate · tflint · trivy · checkov · $0
+  ══════════════════════════
 ```
+
+> Static analysis is the **foundation** below the pyramid — it validates code correctness but doesn't test behavior.
+
+---
+
+## Static Analysis ($0, seconds)
+
+**Not testing** — validates code correctness without executing logic.
+
+**Run**: Every commit (pre-commit hook)
+**Task**: `mise run lint`
+
+| What | Tool | Validates |
+|------|------|-----------|
+| Syntax & schema | `tofu validate` | HCL correctness, module structure |
+| Formatting | `tofu fmt -check` | Code style |
+| Provider rules | `tflint` | AWS deprecations, invalid types |
+| Security misconfig | `trivy config` | CIS benchmarks (Terraform) |
+| Security misconfig | `checkov` | Best practices, compliance |
+| Chart validity | `helm lint` + `helm template` | K8s manifests |
+| Workflow validity | `actionlint` | GitHub Actions syntax |
+| Secrets | `gitleaks` | Leaked credentials |
 
 ---
 
 ## Unit Tests ($0, seconds)
 
-**Run**: Every commit, every PR  
-**Task**: `mise run lint` + `mise run test:unit`
+**Tests logic** — asserts that code produces correct behavior with mock inputs.
 
-| What             | Tool                          | Validates                                |
-|------------------|-------------------------------|------------------------------------------|
-| Syntax & schema  | `tofu validate`               | HCL correctness                          |
-| Formatting       | `tofu fmt -check`             | Code style                               |
-| Provider rules   | `tflint`                      | AWS deprecations, invalid types          |
-| Security         | `trivy config`                | Misconfigurations                        |
-| Policy logic     | `opa test`                    | 14 tests (approval, secrets, compliance) |
-| Chart validity   | `helm lint` + `helm template` | K8s manifests                            |
-| Module structure | Terratest `Init` + `Validate` | 6 modules                                |
-| Module logic     | `tofu test` + `mock_provider` | 7 assertions (RDS, S3, ECR)              |
+**Run**: Every commit, every PR
+**Task**: `mise run test:unit`
+
+| What | Tool | Validates |
+|------|------|-----------|
+| Module logic | `tofu test` + `mock_provider` | ElastiCache, S3 plan assertions |
+| Policy logic | `opa test` | 14 tests (approval, secrets, compliance) |
 
 ---
 
 ## Integration Tests ($0, minutes)
 
-**Run**: Every PR, before merge  
+**Tests interactions** — verifies components work together against emulated services.
+
+**Run**: Every PR, before merge
 **Task**: `mise run test:integration` + `mise run test:apply`
 
-| What                | Tool                | Validates                            |
-|---------------------|---------------------|--------------------------------------|
-| Apply/destroy cycle | kumo + Terratest    | S3 module creates/destroys correctly |
-| K8s deployment      | Kind + Helm dry-run | Backstage chart deploys to cluster   |
-| Approval gates      | OPA eval            | Production blocked, dev allowed      |
-| Secret scanning     | OPA eval + bun scan | No credentials in codebase           |
+| What | Tool | Validates |
+|------|------|-----------|
+| Apply/destroy cycle | `tofu test` + kumo | S3 module creates/destroys correctly |
+| K8s deployment | Kind + Helm dry-run | Backstage chart deploys to cluster |
+| Approval gates | OPA eval | Production blocked, dev allowed |
+| Secret scanning | OPA eval + bun scan | No credentials in codebase |
 
 ---
 
 ## E2E Tests ($50/month, 30 min)
 
-**Run**: Weekly or before release  
-**Task**: `mise run test:e2e`
+**Tests the real system** — deploys to AWS, verifies externally observable behavior.
 
-| What               | Tool                    | Validates                 |
-|--------------------|-------------------------|---------------------------|
-| Full Talos cluster | `tofu apply` (real AWS) | Cluster bootstraps        |
-| IRSA               | Pod → STS → AWS         | Credentials flow          |
-| NLB + networking   | `curl`                  | Traffic reaches Backstage |
-| RDS connectivity   | Backstage → PostgreSQL  | Database works            |
-| Talos operations   | `talosctl upgrade`      | Rolling update            |
+**Run**: Weekly or before release
+**Task**: `mise run test:e2e` (requires `E2E=1` + AWS credentials)
+
+| What | Tool | Validates |
+|------|------|-----------|
+| Full stack deploy | Terratest `InitAndApply` | All modules create successfully |
+| K8s API reachable | Terratest HTTP retry | NLB → cluster connectivity |
+| Database endpoint | Terratest output check | RDS accessible from cluster |
+| Clean teardown | Terratest `Destroy` | No orphaned resources |
 
 ---
 
 ## Running Tests
 
 ```bash
-mise run lint          # Unit: static analysis
-mise run test:unit       # Unit: Terratest module validation
-mise run test:integration       # Integration: Kind, OPA eval, secret scan
-mise run test:apply    # Integration: kumo apply/destroy
-mise run test:e2e      # E2E: real AWS (needs credentials)
+mise run lint               # Static analysis (not testing)
+mise run test:unit          # Unit: tofu test (mock_provider) + opa test
+mise run test:apply         # Integration: tofu test + kumo apply/destroy
+mise run test:integration   # Integration: Kind, OPA eval, secret scan
+mise run test:e2e           # E2E: real AWS (needs E2E=1 + credentials)
 ```
+
+---
+
+## Tool Selection
+
+| Layer | `tofu test` | Terratest |
+|-------|-------------|-----------|
+| Unit (plan-level) | ✅ Primary — fast, native HCL | ❌ Overkill |
+| Integration (emulator) | ✅ Apply/destroy with kumo | ❌ Unnecessary |
+| E2E (real AWS) | ❌ Can't verify external behavior | ✅ HTTP calls, retries, SDK |
+
+**Principle**: `tofu test` for "does my HCL produce the right plan?", Terratest for "does my deployed infra actually work?"
 
 ---
 
 ## Cost Efficiency
 
-| Layer       | Issues Caught | Cost      | Speed   |
-|-------------|---------------|-----------|---------|
-| Unit        | 70%           | $0        | Seconds |
-| Integration | 25%           | $0        | Minutes |
-| E2E         | 5%            | $50/month | 30 min  |
-
-**95% of issues caught at $0 cost.**
+| Layer | Tool | Cost | Speed |
+|-------|------|------|-------|
+| Static analysis | Linters | $0 | Seconds |
+| Unit | tofu test + opa test | $0 | Seconds |
+| Integration | tofu test + kumo + Kind | $0 | Minutes |
+| E2E | Terratest + real AWS | $50/month | 30 min |

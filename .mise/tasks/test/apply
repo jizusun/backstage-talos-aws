@@ -10,7 +10,7 @@ await Bun.sleep(2000);
 
 try {
   console.log("--- Running tofu test (S3 apply/destroy) ---");
-  await $`tofu -chdir=terraform/test/fixtures/s3 test`;
+  await $`tofu -chdir=terraform/tests/setup test`;
   console.log("\n✅ Apply/destroy tests passed");
 } finally {
   kumo.kill();
