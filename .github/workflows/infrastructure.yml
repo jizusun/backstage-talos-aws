@@ -3,11 +3,11 @@ name: Infrastructure Deployment
 on:
   push:
     branches: [main]
-    paths: ['terraform/**']
+    paths: ["terraform/**"]
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Target environment'
+        description: "Target environment"
         required: true
         type: choice
         options: [dev, test, perf, staging, production]
@@ -19,11 +19,11 @@ jobs:
   test:
     name: Validate & Scan
     runs-on: ubuntu-latest
-    env:
-      MISE_DISABLE_TOOLS: talosctl
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
 
       - name: Validate
         working-directory: terraform/
@@ -41,12 +41,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENV: ${{ github.event.inputs.environment || 'dev' }}
-      MISE_DISABLE_TOOLS: talosctl
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
@@ -55,14 +56,14 @@ jobs:
         working-directory: terraform/
         run: |
           tofu init
-          tofu workspace select -or-create ${{ env.ENV }}
-          tofu plan -var-file=environments/${{ env.ENV }}.tfvars -var="db_password=${{ secrets.DB_PASSWORD }}" -out=tfplan
+          tofu workspace select -or-create "${ENV}"
+          tofu plan -var-file="environments/${ENV}".tfvars -var="db_password=${{ secrets.DB_PASSWORD }}" -out=tfplan
           tofu show -json tfplan > tfplan.json
 
       - name: OPA Compliance Check
         run: opa eval -d policies/opa/terraform-compliance.rego -i terraform/tfplan.json "data.terraform.compliance.violation" --fail-defined
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: tfplan-${{ env.ENV }}
           path: terraform/tfplan
@@ -75,7 +76,9 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment }}-approval
     steps:
-      - run: echo "✅ Approved for ${{ github.event.inputs.environment }}"
+      - run: echo "✅ Approved for ${GITHUB_EVENT_INPUTS_ENVIRONMENT}"
+        env:
+          GITHUB_EVENT_INPUTS_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
   apply:
     name: Apply (${{ github.event.inputs.environment || 'dev' }})
@@ -89,15 +92,17 @@ jobs:
     env:
       ENV: ${{ github.event.inputs.environment || 'dev' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
 
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: tfplan-${{ env.ENV }}
           path: terraform/
@@ -106,8 +111,8 @@ jobs:
         working-directory: terraform/
         run: |
           tofu init
-          tofu workspace select ${{ env.ENV }}
+          tofu workspace select "${ENV}"
           tofu apply tfplan
 
       - name: Validate Cluster
-        run: talosctl health --nodes $(tofu -chdir=terraform output -raw control_plane_ip)
+        run: talosctl health --nodes "$(tofu -chdir=terraform output -raw control_plane_ip)"

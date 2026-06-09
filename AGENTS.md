@@ -1,13 +1,19 @@
 # AGENTS.md
 
+## Purpose
+
+This is a **GitHub template repository** for Terraform/OpenTofu infrastructure test harnesses. The focus is on engineering rigor — testing pyramid, policy-as-code, CI/CD validation — not any specific infrastructure deployment.
+
+The included Backstage + Talos + AWS modules are an **example implementation** demonstrating the harness patterns. Replace them with your own infrastructure.
+
 ## Tool Management
 
 This project uses [mise](https://mise.jdx.dev) as the single tool manager, task runner, and environment configuration.
 
 ### Rules
 
-1. **Always use `mise exec --` to run any tool** (tofu, helm, kubectl, opa, kind, talosctl, fakecloud)
-2. **Always use `mise run <task>`** to run project tasks instead of raw shell scripts
+1. **Call tools directly** (tofu, helm, opa, etc.) — mise activates them via shell integration or file tasks. Use `mise exec --` if shell integration is not activated.
+2. **Always use `mise run <task>`** to run project tasks instead of raw shell scripts. `mise <task>` is a shorthand for `mise run <task>`. Use `mise tasks` to list available tasks.
 3. **Never install tools globally** — all tools are managed via `mise.toml`
 4. **Add new tools to `mise.toml`** using `mise use <tool>@<version> --pin`
 5. **Use `[env]` section in `mise.toml`** for environment variables, not `.env` files
@@ -31,7 +37,7 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 - Use `#!/usr/bin/env bun` shebang and `//MISE` directives for metadata
 - Use Bun's `$` shell API (`import { $ } from "bun"`) for command execution
 - No bash scripts, no Python scripts — Bun is the single scripting runtime
-- Task names: short, lowercase, colon-separated for grouping (`test:ut`, `test:it`)
+- Task names: short, lowercase, colon-separated for grouping (`test:unit`, `test:integration`)
 
 ### Policies (OPA/Rego)
 
@@ -49,9 +55,11 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 
 ## Testing
 
+The harness is the core value of this template. Everything else is replaceable.
+
 ### Testing Pyramid
 
-```
+```text
       E2E (AWS)           ← Real infra, $50/month, weekly
     Integration           ← Kind + Terratest + OPA eval, $0, minutes
   Unit (lint/validate)    ← tofu + tflint + trivy + opa + helm, $0, seconds
@@ -61,26 +69,26 @@ This project uses [mise](https://mise.jdx.dev) as the single tool manager, task 
 
 ```bash
 mise run lint       # Layer 1: static analysis
-mise run test:ut    # Layer 1: Terratest module validation
-mise run test:it    # Layer 2: Kind + OPA + secret scan (depends on lint + test:ut)
+mise run test:unit    # Layer 1: Terratest module validation
+mise run test:integration    # Layer 2: Kind + OPA + secret scan (depends on lint + test:unit)
 mise run test:apply # Layer 2: kumo apply/destroy
 mise run test:e2e   # Layer 3: real AWS (needs credentials)
 ```
 
 ### What Gets Tested Where
 
-| Tool | Layer | What It Validates |
-|------|-------|-------------------|
-| `tofu validate` | 1 | HCL syntax, module structure |
-| `tflint` | 1 | Provider-specific rules, deprecations |
-| `trivy` | 1 | Security misconfigurations |
-| `opa test` | 1 | Policy logic correctness |
-| `helm lint/template` | 1 | Chart validity |
-| Terratest (Go) | 1+ | Module init/validate in isolation |
-| `tofu test` | 1+ | Module assertions with mock_provider |
-| Kind + Helm dry-run | 2 | K8s deployment validity |
-| OPA eval | 2 | Approval gates, secret scanning |
-| `tofu apply` (AWS) | 3 | Real infrastructure creation |
+| Tool                 | Layer | What It Validates                     |
+|----------------------|-------|---------------------------------------|
+| `tofu validate`      | 1     | HCL syntax, module structure          |
+| `tflint`             | 1     | Provider-specific rules, deprecations |
+| `trivy`              | 1     | Security misconfigurations            |
+| `opa test`           | 1     | Policy logic correctness              |
+| `helm lint/template` | 1     | Chart validity                        |
+| Terratest (Go)       | 1+    | Module init/validate in isolation     |
+| `tofu test`          | 1+    | Module assertions with mock_provider  |
+| Kind + Helm dry-run  | 2     | K8s deployment validity               |
+| OPA eval             | 2     | Approval gates, secret scanning       |
+| `tofu apply` (AWS)   | 3     | Real infrastructure creation          |
 
 ### Terratest vs `tofu test`
 
@@ -100,14 +108,14 @@ mise run test:e2e   # Layer 3: real AWS (needs credentials)
 
 ### Deployment Flow
 
-```
+```text
 dev/test/perf: push → validate → plan → apply (automatic)
 staging/prod:  push → validate → plan → approval → apply (manual gate)
 ```
 
 ## Project Structure
 
-```
+```text
 .
 ├── mise.toml                  # Tools + env vars (no inline tasks)
 ├── .mise/tasks/               # All tasks as Bun TypeScript files
@@ -115,7 +123,7 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 │   ├── modules/               # Reusable infrastructure modules
 │   ├── environments/          # Per-environment tfvars
 │   ├── test/                  # Terratest (Go)
-│   └── versions.tf            # Provider requirements + backend
+│   └── versions.tf           # Provider requirements + backend
 ├── charts/backstage/          # Helm chart + committed dependencies
 ├── policies/opa/              # Rego policies + tests + data
 ├── .github/workflows/         # CI/CD pipelines
@@ -124,10 +132,61 @@ staging/prod:  push → validate → plan → approval → apply (manual gate)
 
 ## Key Decisions (Context)
 
-- **Talos Linux** over EKS: immutable OS, $360/month savings, API-only operations
+- **Talos Linux** over EKS: immutable OS, API-only operations (example choice — replace with yours)
 - **OpenTofu** over Terraform: open-source, BSL-free, same HCL syntax
 - **Bun** over bash/python/node: single fast runtime for all scripting
-- **OPA** over Sentinel/Checkov: required by test spec, most flexible
-- **GitHub Actions** over Harness: free, native Git integration; Harness is optional addon
+- **OPA** over Sentinel/Checkov: most flexible, testable policy engine
+- **GitHub Actions** over Harness: free, native Git integration
 - **Kind** for local testing: fast, lightweight, sufficient for Helm validation
-- **No FakeCloud/LocalStack**: doesn't support EC2/VPC APIs needed for our modules
+- **No FakeCloud/LocalStack**: doesn't support EC2/VPC APIs needed for our example modules
+
+## Guidance for Future Work
+
+### Before Adding Dependencies
+
+- Check if the tool is available via `mise registry | grep <tool>` before manual install
+- Verify download URLs still exist — upstream projects remove old releases
+- Pin exact versions, never use `latest` in `mise.toml`
+- Run `mise lock` after any change — the lockfile ensures reproducibility across platforms
+
+### Before Adding AWS Emulators
+
+- `tofu validate` and `tofu plan -backend=false` work **offline** — no emulator needed for syntax/structure
+- `tofu test` with `mock_provider` covers logic assertions without any AWS endpoint
+- AWS emulators (kumo, moto, etc.) are only useful for **apply/destroy cycle testing**
+- Most emulators don't support all services — verify your module's APIs are covered before investing time
+- Real AWS ($50/month dev cluster) gives 100% confidence — often cheaper than debugging emulator gaps
+
+### When Writing CI Workflows
+
+- Always validate locally first (`mise run lint && mise run test:integration`) before pushing to see CI results
+- `mise-action` installs **all** tools in `mise.toml` — if one fails, the whole step fails
+- Check actual CI error logs before assuming which tool caused the failure
+- Commit chart dependencies and lock files — don't rely on network fetches during CI
+- Use `concurrency` groups to cancel stale runs on the same branch
+
+### When Debugging CI Failures
+
+- Use `gh run view <id> --log` to get full logs locally
+- Search for the actual error: `grep -i "error\|fail" | grep -v "set-failed"`
+- Common causes: version 404 (upstream removed), network timeout, missing secrets
+- If `mise-action` fails: check which specific tool install errored, not just "mise failed"
+
+### When Writing Tests
+
+- Every policy file needs a `_test.rego` — untested policies are untrustworthy
+- OPA tests must cover both **allow** and **deny** cases
+- Prefer `tofu test` over Terratest for logic — it's faster and native
+- Use Bun's `$` API carefully with pipes — write to files instead of piping stdin in Bun shell
+- Integration tests should be idempotent — clean up Kind clusters, kill background processes
+
+### When Making Changes
+
+- **Never push without explicit permission** — commit locally, wait for user to say "push"
+- **Never modify linter configs** (`.mega-linter.yml`, `.editorconfig`) without confirming first
+- **Validate locally before pushing to CI** — don't use CI as your test environment
+- **Diagnose root cause before iterating fixes** — read actual error logs, don't guess
+- **Verify tool/version exists** before adding: `mise ls-remote <tool>` to check available versions
+- **Check emulator API coverage** before adopting — verify your services are supported, don't assume
+- **Keep commits atomic** — one logical change per commit, not fix-fix-fix chains
+- **Follow existing conventions** — read mise.toml, AGENTS.md, and existing code before writing new code

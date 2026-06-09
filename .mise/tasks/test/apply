@@ -1,16 +1,16 @@
 #!/usr/bin/env bun
-//MISE description="Apply/destroy tests against kumo AWS emulator"
+//MISE description="Apply/destroy tests: tofu test against kumo emulator"
 import { $ } from "bun";
 
-console.log("═══ Apply/Destroy Tests (kumo) ═══");
+console.log("═══ Apply/Destroy Tests (kumo + tofu test) ═══");
 
 console.log("--- Starting kumo ---");
 const kumo = Bun.spawn(["kumo"], { stdout: "ignore", stderr: "ignore" });
 await Bun.sleep(2000);
 
 try {
-  console.log("--- Running apply tests ---");
-  await $`cd terraform/test && KUMO=1 go test -v -run TestS3ApplyDestroy -timeout 5m`;
+  console.log("--- Running tofu test (S3 apply/destroy) ---");
+  await $`tofu -chdir=terraform/tests/setup test`;
   console.log("\n✅ Apply/destroy tests passed");
 } finally {
   kumo.kill();

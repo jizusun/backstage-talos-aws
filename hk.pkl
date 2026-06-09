@@ -1,0 +1,73 @@
+amends "package://github.com/jdx/hk/releases/download/v1.46.0/hk@1.46.0#/Config.pkl"
+
+hooks {
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    steps {
+      ["tofu-fmt"] {
+        glob = List("*.tf")
+        check = "tofu -chdir=terraform fmt -check -recursive"
+        fix = "tofu -chdir=terraform fmt -recursive"
+      }
+      ["tofu-validate"] {
+        glob = List("*.tf")
+        check = "tofu -chdir=terraform validate"
+      }
+      ["actionlint"] {
+        glob = List(".github/workflows/*.yml")
+        check = "actionlint"
+      }
+      ["opa-test"] {
+        glob = List("*.rego")
+        check = "opa test policies/opa/"
+      }
+      ["helm-lint"] {
+        glob = List("charts/**/*")
+        check = "helm lint charts/backstage/"
+      }
+      ["gitleaks"] {
+        check = "gitleaks detect --source . --no-git -c .gitleaks.toml --redact"
+      }
+      ["editorconfig"] {
+        check = "ec"
+      }
+      ["zizmor"] {
+        glob = List(".github/workflows/*.yml")
+        check = "zizmor --min-severity high --min-confidence high .github/workflows/"
+      }
+      ["tflint"] {
+        glob = List("*.tf")
+        check = "tflint --chdir=terraform --recursive --minimum-failure-severity=error"
+      }
+      ["trivy"] {
+        glob = List("*.tf")
+        check = "trivy config terraform/ --severity CRITICAL --exit-code 1"
+      }
+      ["trivy-vuln"] {
+        glob = List("go.mod", "go.sum")
+        check = "trivy fs terraform/test/go.mod --severity HIGH,CRITICAL --exit-code 1"
+      }
+      ["yamllint"] {
+        glob = List("*.yml", "*.yaml")
+        check = "mise exec -- yamllint ."
+      }
+      ["prettier"] {
+        glob = List("*.yml", "*.yaml")
+        check = "mise exec -- prettier --check '**/*.{yml,yaml}'"
+      }
+      ["checkov"] {
+        glob = List("*.tf")
+        check = "checkov -d terraform/ --config-file .checkov.yml --compact --quiet"
+      }
+      ["test-unit"] {
+        glob = List("*.tf", "*.tftest.hcl")
+        check = "tofu -chdir=terraform/modules/elasticache test && tofu -chdir=terraform/modules/s3 test"
+      }
+      ["test-integration"] {
+        glob = List("*.tf", "*.rego", "charts/**/*")
+        check = "mise run test:integration"
+      }
+    }
+  }
+}

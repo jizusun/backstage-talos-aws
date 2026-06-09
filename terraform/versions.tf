@@ -4,11 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.80"
-    }
-    talos = {
-      source  = "siderolabs/talos"
-      version = "~> 0.7"
+      version = "~> 6.0"
     }
     helm = {
       source  = "hashicorp/helm"
@@ -21,10 +17,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = "backstage-platform-tfstate"
-    key            = "infrastructure/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    use_lockfile   = true
+    bucket       = "backstage-platform-tfstate"
+    key          = "infrastructure/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
   }
 }

@@ -1,0 +1,17 @@
+#!/usr/bin/env bun
+//MISE description="Unit tests: tofu test (mock_provider) + validate"
+//MISE depends=["lint"]
+import { $ } from "bun";
+
+console.log("═══ Unit Tests (tofu test) ═══");
+
+console.log("--- tofu validate (all modules) ---");
+await $`tofu -chdir=terraform validate`;
+
+const testableModules = ["elasticache", "s3"];
+for (const mod of testableModules) {
+  console.log(`--- tofu test: ${mod} ---`);
+  await $`tofu -chdir=terraform/modules/${mod} test`;
+}
+
+console.log("\n✅ Unit tests passed");

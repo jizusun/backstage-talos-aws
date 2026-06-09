@@ -6,15 +6,15 @@ Go-based testing framework for infrastructure code. Validates that Terraform mod
 
 ## When to Use Terratest
 
-| Scenario | Use Terratest? | Why |
-|----------|---------------|-----|
-| Validate module syntax/structure | ✅ | `Init` + `Validate` per module without AWS |
-| Test variable validation | ✅ | Pass bad inputs, assert errors |
-| Verify plan output (resource counts) | ✅ | `InitAndPlan` + inspect plan struct |
-| Full apply/destroy integration test | ✅ | Real cloud resources, verify connectivity |
-| Quick syntax check in CI | ❌ | Use `tofu validate` instead (faster) |
-| Policy compliance | ❌ | Use OPA instead (declarative) |
-| Security scanning | ❌ | Use Trivy/tflint instead |
+| Scenario                             | Use Terratest? | Why                                        |
+|--------------------------------------|----------------|--------------------------------------------|
+| Validate module syntax/structure     | ✅              | `Init` + `Validate` per module without AWS |
+| Test variable validation             | ✅              | Pass bad inputs, assert errors             |
+| Verify plan output (resource counts) | ✅              | `InitAndPlan` + inspect plan struct        |
+| Full apply/destroy integration test  | ✅              | Real cloud resources, verify connectivity  |
+| Quick syntax check in CI             | ❌              | Use `tofu validate` instead (faster)       |
+| Policy compliance                    | ❌              | Use OPA instead (declarative)              |
+| Security scanning                    | ❌              | Use Trivy/tflint instead                   |
 
 ## How We Apply It
 

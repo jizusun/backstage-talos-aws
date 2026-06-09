@@ -1,0 +1,10 @@
+site_name: Platform Engineering Harness Blueprint
+site_url: https://jizusun.github.io/platform-engineering-harness-blueprint/
+repo_url: https://github.com/jizusun/platform-engineering-harness-blueprint
+
+nav:
+  - Home: index.md
+  - Testing Pyramid: testing-pyramid.md
+  - Terratest Guide: terratest.md
+  - OPA Guide: opa.md
+  - Implementation Plan: backstage-platform-engineering-plan.md

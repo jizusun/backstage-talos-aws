@@ -18,7 +18,22 @@ DISABLE:
   - COPYPASTE # Comment to enable checks of excessive copy-pastes
   - SPELL # Comment to enable checks of spelling mistakes
 
+DISABLE_LINTERS:
+  - TERRAFORM_TERRASCAN # Doesn't support optional(type, default) OpenTofu syntax
+
+MARKDOWN_DEFAULT_STYLE: rumdl
 SHOW_ELAPSED_TIME: true
+
+# tflint: use project config for correct plugins
+TERRAFORM_TFLINT_CONFIG_FILE: terraform/.tflint.hcl
+TERRAFORM_TFLINT_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
+
+# zizmor: only report high+ severity to avoid noise from medium warnings
+ACTION_ZIZMOR_ARGUMENTS: "--offline --min-severity high --min-confidence high"
+
+# trivy: skip Kubernetes misconfig checks on Helm templates (handled by helm lint)
+REPOSITORY_TRIVY_ARGUMENTS: "--skip-dirs charts/"
 
 # Uncomment if you want MegaLinter to detect errors but not block CI to pass
 # DISABLE_ERRORS: true

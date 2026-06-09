@@ -420,23 +420,23 @@ cilium hubble observe
 ## Comparison with Alternatives
 
 ### vs. EKS
-| Feature | Talos + Terraform | EKS |
-|---------|-------------------|-----|
-| **Control Plane Cost** | Included in EC2 | $72/month |
-| **OS Management** | Automated, immutable | Manual patching |
-| **Customization** | Full control | AWS managed |
-| **Security** | Immutable, API-only | Traditional Linux |
-| **Networking** | Cilium eBPF | AWS VPC CNI |
-| **Vendor Lock-in** | Minimal | AWS specific |
+| Feature                | Talos + Terraform    | EKS               |
+|------------------------|----------------------|-------------------|
+| **Control Plane Cost** | Included in EC2      | $72/month         |
+| **OS Management**      | Automated, immutable | Manual patching   |
+| **Customization**      | Full control         | AWS managed       |
+| **Security**           | Immutable, API-only  | Traditional Linux |
+| **Networking**         | Cilium eBPF          | AWS VPC CNI       |
+| **Vendor Lock-in**     | Minimal              | AWS specific      |
 
 ### vs. Self-managed K8s
-| Feature | Talos | Traditional |
-|---------|-------|-------------|
-| **Setup Complexity** | Terraform automated | Manual kubeadm |
-| **OS Security** | Immutable, no SSH | Requires hardening |
-| **Updates** | Atomic OS+K8s | Component by component |
-| **Maintenance** | Minimal | High overhead |
-| **Debugging** | API-based | Shell access |
+| Feature              | Talos               | Traditional            |
+|----------------------|---------------------|------------------------|
+| **Setup Complexity** | Terraform automated | Manual kubeadm         |
+| **OS Security**      | Immutable, no SSH   | Requires hardening     |
+| **Updates**          | Atomic OS+K8s       | Component by component |
+| **Maintenance**      | Minimal             | High overhead          |
+| **Debugging**        | API-based           | Shell access           |
 
 ## Best Practices and Recommendations
 

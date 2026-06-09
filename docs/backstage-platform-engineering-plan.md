@@ -32,14 +32,14 @@ Users → NLB → Talos Kubernetes Cluster → RDS PostgreSQL
 
 ## Environment Strategy
 
-| Environment | Region | Sizing | Cost |
-|-------------|--------|--------|------|
-| **dev** | us-east-1 | 1 CP + 1 Worker (spot) | ~$50/mo |
-| **test** | us-east-1 | 3 CP + 2 Workers | ~$150/mo |
-| **perf** | us-east-1 + us-west-2 | 3 CP + 3 Workers | ~$350/mo |
-| **staging** | us-east-1 + us-west-2 | 3 CP + 2 Workers | ~$300/mo |
-| **production** | us-east-1 + us-west-2 | 3 CP + 3 Workers | ~$500/mo |
-| **Total** | | | **~$1,350/mo** |
+| Environment    | Region                | Sizing                 | Cost           |
+|----------------|-----------------------|------------------------|----------------|
+| **dev**        | us-east-1             | 1 CP + 1 Worker (spot) | ~$50/mo        |
+| **test**       | us-east-1             | 3 CP + 2 Workers       | ~$150/mo       |
+| **perf**       | us-east-1 + us-west-2 | 3 CP + 3 Workers       | ~$350/mo       |
+| **staging**    | us-east-1 + us-west-2 | 3 CP + 2 Workers       | ~$300/mo       |
+| **production** | us-east-1 + us-west-2 | 3 CP + 3 Workers       | ~$500/mo       |
+| **Total**      |                       |                        | **~$1,350/mo** |
 
 Multi-region (active-passive) for perf, staging, and production as required.
 
@@ -81,41 +81,41 @@ Multi-region (active-passive) for perf, staging, and production as required.
 
 ## Test Requirements Mapping
 
-| Test Task | Requirement | Solution |
-|-----------|-------------|----------|
-| **Task 0** | Multi-tier OSS project | Backstage (React → Node.js → PostgreSQL) |
-| **Task 1** | Infrastructure as Code | Terraform + Talos + AWS (5 environments) |
-| **Task 2.1** | Infra Pipeline | GitHub Actions: test → plan → approval → apply |
-| **Task 2.2** | Service Pipeline | GitHub Actions: build → scan → deploy |
-| **Task 3** | Policy as Code | OPA: deployment approvals + secret scanning |
-| **Task 4** | Documentation | Architecture + infra + pipeline diagrams |
+| Test Task    | Requirement            | Solution                                       |
+|--------------|------------------------|------------------------------------------------|
+| **Task 0**   | Multi-tier OSS project | Backstage (React → Node.js → PostgreSQL)       |
+| **Task 1**   | Infrastructure as Code | Terraform + Talos + AWS (5 environments)       |
+| **Task 2.1** | Infra Pipeline         | GitHub Actions: test → plan → approval → apply |
+| **Task 2.2** | Service Pipeline       | GitHub Actions: build → scan → deploy          |
+| **Task 3**   | Policy as Code         | OPA: deployment approvals + secret scanning    |
+| **Task 4**   | Documentation          | Architecture + infra + pipeline diagrams       |
 
 ---
 
 ## Technology Stack
 
-| Layer | Technology | Rationale |
-|-------|-----------|-----------|
-| **Infrastructure** | Terraform | Required by test, advanced features demonstrated |
-| **Kubernetes** | Talos Linux | Immutable OS, cost savings, security-first |
-| **Networking** | Cilium (eBPF) | Built into Talos module, kube-proxy replacement |
-| **CI/CD** | GitHub Actions + Harness | Free primary + preferred optional |
-| **Policy** | Open Policy Agent | Required by test, enterprise governance |
-| **Monitoring** | Prometheus + Grafana | Industry standard, Talos native support |
-| **Local Dev** | Kind + OpenTofu plan | Zero-cost development and validation |
+| Layer              | Technology               | Rationale                                        |
+|--------------------|--------------------------|--------------------------------------------------|
+| **Infrastructure** | Terraform                | Required by test, advanced features demonstrated |
+| **Kubernetes**     | Talos Linux              | Immutable OS, cost savings, security-first       |
+| **Networking**     | Cilium (eBPF)            | Built into Talos module, kube-proxy replacement  |
+| **CI/CD**          | GitHub Actions + Harness | Free primary + preferred optional                |
+| **Policy**         | Open Policy Agent        | Required by test, enterprise governance          |
+| **Monitoring**     | Prometheus + Grafana     | Industry standard, Talos native support          |
+| **Local Dev**      | Kind + OpenTofu plan     | Zero-cost development and validation             |
 
 ---
 
 ## Cost & Timeline
 
-| Week | Phase | Cost |
-|------|-------|------|
-| 1-2 | Foundation & Terraform | $0 |
-| 3 | Security & OPA | $0 |
-| 4 | CI/CD Pipelines | $0 |
-| 5 | AWS Dev Validation | $50 |
-| 6 | Full Deployment | $1,350 |
-| 7 | Operations & Docs | $1,350 |
+| Week | Phase                  | Cost   |
+|------|------------------------|--------|
+| 1-2  | Foundation & Terraform | $0     |
+| 3    | Security & OPA         | $0     |
+| 4    | CI/CD Pipelines        | $0     |
+| 5    | AWS Dev Validation     | $50    |
+| 6    | Full Deployment        | $1,350 |
+| 7    | Operations & Docs      | $1,350 |
 
 **Total Duration**: 7 weeks  
 **Development Cost**: $0 (weeks 1-4)  

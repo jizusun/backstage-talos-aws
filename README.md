@@ -1,8 +1,100 @@
-# Backstage Platform on Talos Kubernetes
+# Platform Engineering Harness Blueprint
 
-Production-ready deployment of [Spotify Backstage](https://backstage.io) developer portal on [Talos Linux](https://www.talos.dev) Kubernetes across 5 AWS environments.
+A GitHub template for building **infrastructure test harnesses** around Terraform/OpenTofu projects. The emphasis is on platform engineering rigor — TDD, testing pyramid, policy-as-code, CI/CD validation gates, module governance — not the infrastructure itself.
 
-## Architecture
+Backstage on Talos Linux (AWS) is included as an **example implementation** to demonstrate the harness patterns in a realistic context.
+
+## Harness Capabilities
+
+### Automated Testing Framework
+
+```text
+      E2E (AWS)           ← Real infra, expensive, weekly
+    Integration           ← Kind + Terratest + OPA eval, $0, minutes
+  Unit (lint/validate)    ← tofu + tflint + trivy + opa + helm, $0, seconds
+```
+
+Most issues caught at $0 cost before touching a cloud provider.
+
+| Tool                 | Layer | What It Validates                       |
+|----------------------|-------|-----------------------------------------|
+| `tofu validate`      | 1     | HCL syntax, module structure            |
+| `tflint`             | 1     | Provider-specific rules, deprecations   |
+| `trivy`              | 1     | Security misconfigurations              |
+| `opa test`           | 1     | Policy logic correctness                |
+| `helm lint/template` | 1     | Chart validity                          |
+| Terratest (Go)       | 1     | Module init/validate in isolation       |
+| `tofu test`          | 1     | Module assertions with mock_provider    |
+| Kind + Helm dry-run  | 2     | K8s deployment validity                 |
+| OPA eval             | 2     | Approval gates, secret scanning         |
+| kumo + Terratest     | 2     | Apply/destroy cycles (AWS emulator, $0) |
+| `tofu apply` (AWS)   | 3     | Real infrastructure creation            |
+
+### Policy-as-Code (OPA)
+
+- **Deployment approval** — staging/production require authorized approver
+- **Secret scanning** — blocks hardcoded credentials
+- **Infrastructure compliance** — encryption, tagging, multi-AZ enforcement
+- TODO: CIS benchmark policies
+- TODO: Cost guardrails (instance size limits, storage caps)
+
+### Security & Compliance
+
+- Trivy scanning for security misconfigurations in HCL
+- OPA policies enforcing encryption-at-rest, tagging standards
+- Secret detection in plan output
+- Renovate for automated supply chain security (dependency updates, CVE patching)
+- TODO: SAST/DAST integration
+- TODO: Compliance report generation (SOC2, HIPAA mappings)
+- TODO: Drift detection and remediation
+
+### CI/CD Pipelines
+
+```text
+PR:            lint → unit test → integration test → policy check
+dev/test/perf: push → validate → plan → apply (automatic)
+staging/prod:  push → validate → plan → approval → apply (manual gate)
+```
+
+- GitHub Actions workflows for full PR validation
+- Environment promotion with manual approval gates
+- TODO: Harness pipeline examples (parallel to GitHub Actions)
+- TODO: Rollback automation on failed applies
+- `branch-deploy` for deployment via PR comments (`.deploy`, `.noop`)
+- `release-please` for automated release pipeline (changelog, versioning, tagging)
+
+### Module Composition & Governance
+
+- Workspaces for environment separation
+- `environments/*.tfvars` for per-environment config
+- Remote state (S3) with native locking
+- One module per infrastructure concern (vpc, rds, ecr, etc.)
+- TODO: Module versioning strategy (git tags + registry)
+- TODO: Module release pipeline (test → tag → publish)
+- TODO: Consumer documentation template per module
+
+### DR/HA Patterns
+
+- TODO: Multi-AZ deployment patterns in example modules
+- TODO: Backup/restore validation tests
+- TODO: Failover simulation in integration tests
+
+### Cost Optimization
+
+- TODO: Infracost integration for PR cost estimates
+- TODO: OPA policies for cost guardrails (instance families, storage tiers)
+- TODO: FinOps tagging enforcement policies
+
+### Multi-Team Consumption
+
+- TODO: Module registry setup (Terraform Cloud or S3-backed)
+- TODO: Self-service module catalog (Backstage integration)
+- TODO: Consumer onboarding guide
+- TODO: SLA/SLO definitions for shared modules
+
+## Example Implementation
+
+The included example deploys Backstage on Talos Linux across AWS environments:
 
 ```
 Users → NLB → Talos Kubernetes (Cilium CNI)
@@ -13,157 +105,67 @@ Users → NLB → Talos Kubernetes (Cilium CNI)
                     └── ECR (Images)
 ```
 
-## Technology Stack
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| OS/Compute | Talos Linux | Immutable, API-only Kubernetes |
-| Networking | Cilium (eBPF) | Kube-proxy replacement, observability |
-| IaC | OpenTofu | Infrastructure automation |
-| CI/CD | GitHub Actions | Pipeline automation |
-| Policy | Open Policy Agent | Governance and compliance |
-| Tooling | mise | Tool/env/task management |
-
-## Environments
-
-| Environment | Region | Sizing | Cost |
-|-------------|--------|--------|------|
-| dev | us-east-1 | 1 CP + 1 Worker (spot) | ~$50/mo |
-| test | us-east-1 | 3 CP + 2 Workers | ~$150/mo |
-| perf | us-east-1 + us-west-2 | 3 CP + 3 Workers | ~$350/mo |
-| staging | us-east-1 + us-west-2 | 3 CP + 2 Workers | ~$300/mo |
-| production | us-east-1 + us-west-2 | 3 CP + 3 Workers | ~$500/mo |
+This exists to show the harness in action against real modules — swap it out with your own infrastructure.
 
 ## Quick Start
 
-### Prerequisites
-
 ```bash
-# Install mise (tool manager)
+# Use this template on GitHub, then:
 curl https://mise.run | sh
-
-# Install all project tools
 mise install
-```
 
-### Local Development
-
-```bash
-# Validate infrastructure code
-mise run validate
-
-# Deploy Backstage locally with Kind
-mise run dev
-
-# Access Backstage
-kubectl port-forward svc/backstage 3000:3000
-open http://localhost:3000
-```
-
-### Deploy to AWS
-
-```bash
-# Plan for dev environment
-mise run plan dev
-
-# Apply (via GitHub Actions or manually)
-mise run test-e2e
+# Run the full harness locally
+mise run lint        # Layer 1: static analysis
+mise run test:unit     # Layer 1: module validation (no AWS needed)
+mise run test:integration     # Layer 2: Kind + OPA + Helm (no AWS needed)
+mise run test:e2e    # Layer 3: real AWS (needs credentials)
 ```
 
 ## Project Structure
 
 ```
 ├── mise.toml                     # Tools, env vars, task runner
-├── terraform/
-│   ├── modules/
-│   │   ├── vpc/                  # Multi-AZ VPC
-│   │   ├── talos-cluster/        # Talos K8s cluster + NLB + IAM
-│   │   ├── rds/                  # PostgreSQL (encrypted, Multi-AZ)
-│   │   ├── elasticache/          # Redis (encrypted)
-│   │   ├── s3/                   # Object storage (KMS, private)
-│   │   └── ecr/                  # Container registry
-│   ├── environments/             # Per-environment tfvars
-│   ├── main.tf                   # Root module composition
-│   └── versions.tf               # Provider requirements
-├── charts/backstage/             # Helm chart
-│   ├── templates/                # K8s manifests
-│   └── values/                   # Per-environment values
-├── .github/workflows/
-│   ├── infrastructure.yml        # test → plan → approval → apply
-│   ├── application.yml           # build → scan → deploy
-│   └── policy-check.yml          # OPA validation on PRs
-├── policies/opa/
-│   ├── deployment-approval.rego  # Approval gates (staging/prod)
-│   ├── secret-scanning.rego      # Credential detection
-│   └── terraform-compliance.rego # Encryption, tagging, Multi-AZ
 ├── .mise/tasks/                  # Bun TypeScript task scripts
-└── docs/                         # Architecture & design docs
+├── terraform/
+│   ├── modules/                  # Reusable infrastructure modules
+│   ├── environments/             # Per-environment tfvars
+│   ├── test/                     # Terratest (Go)
+│   └── versions.tf              # Provider requirements + backend
+├── charts/backstage/             # Helm chart (example workload)
+├── policies/opa/                 # Rego policies + tests + data
+├── .github/workflows/            # CI/CD pipelines
+│   ├── pr-validation.yml         # Runs full harness on PRs
+│   ├── infrastructure.yml        # Deploy on push to main
+│   └── application.yml           # App deploy on push to main
+└── docs/                         # Architecture and design docs
 ```
 
-## Available Tasks
+## Adapting This Template
 
-```bash
-mise run lint              # Lint and validate all code
-mise run plan <env>        # Generate OpenTofu plan
-mise run fmt               # Auto-format code
-mise run test:ut           # Terratest module validation
-mise run test:it           # Integration tests (Kind + OPA)
-mise run test:e2e          # Deploy to real AWS
-mise run dev               # Full local dev environment
-mise run clean             # Remove local clusters
-```
+1. **Click "Use this template"** on GitHub
+2. Replace `terraform/modules/` with your own infrastructure
+3. Update `policies/opa/` with your governance rules
+4. Adjust `charts/` for your workload (or remove if not using K8s)
+5. Keep the harness structure — it works for any Terraform project
 
-## Testing Pyramid
+## Technology Choices
 
-```
-        E2E (AWS)           ← $50/month, weekly
-      Apply/Destroy         ← FakeCloud, free
-    Integration (Kind)      ← Local, free
-  Unit (validate/lint/opa)  ← Local, free
-```
-
-95% of issues caught at $0 cost before touching AWS.
-
-## Security & Policy
-
-### OPA Policies Enforced
-1. **Deployment Approval** — staging/production require authorized approver
-2. **Secret Scanning** — blocks hardcoded credentials in PRs
-3. **Infrastructure Compliance** — encryption, tagging, Multi-AZ for production
-
-### Infrastructure Security
-- Talos: No SSH, no shell, API-only access
-- RDS: Encrypted at rest, private subnets only
-- Redis: Encryption at rest + in transit
-- S3: KMS encryption, public access blocked
-- ECR: Immutable tags, scan on push
-
-## CI/CD Pipelines
-
-### Infrastructure Pipeline
-```
-Push to terraform/ → Validate → Plan → OPA Check → [Approval] → Apply
-```
-
-### Application Pipeline
-```
-Push to charts/ → Build Image → Trivy Scan → Secret Scan → Helm Deploy
-```
-
-### Policy Pipeline
-```
-Any PR → OPA Test → Deployment Logic Check → Secret Scan
-```
+| Tool           | Why                                                    |
+|----------------|--------------------------------------------------------|
+| OpenTofu       | Open-source, BSL-free, same HCL as Terraform           |
+| mise           | Single tool/env/task manager — reproducible everywhere |
+| Bun            | Fast TypeScript runtime for all task scripts           |
+| OPA/Rego       | Flexible policy engine, testable, data-driven          |
+| Kind           | Fast local K8s for integration tests                   |
+| GitHub Actions | Free CI, native Git integration                        |
 
 ## Documentation
 
-- [Implementation Plan](docs/backstage-platform-engineering-plan.md)
 - [Testing Pyramid](docs/testing-pyramid.md)
-- [Talos IRSA & Feature Gap](docs/talos-irsa-and-feature-gap.md)
-- [Talos vs EKS Cost](docs/talos-vs-eks-cost.md)
-- [Talos Deep Dive](docs/talos-terraform-deep-dive.md)
 - [Terratest Guide](docs/terratest.md)
 - [OPA Guide](docs/opa.md)
+- [Implementation Plan](docs/backstage-platform-engineering-plan.md)
+- TODO: Zensical for documentation site generation
 
 ## License
 

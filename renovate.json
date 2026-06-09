@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "commitMessageExtra": "from {{currentVersion}} to {{newVersion}}",
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "matchManagers": ["gomod"],
+      "groupName": "Go dependencies"
+    },
+    {
+      "matchManagers": ["terraform"],
+      "groupName": "Terraform providers"
+    },
+    {
+      "matchManagers": ["helm-values", "helmfile"],
+      "groupName": "Helm charts"
+    }
+  ]
+}

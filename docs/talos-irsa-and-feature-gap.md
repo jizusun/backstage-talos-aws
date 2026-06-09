@@ -4,14 +4,14 @@
 
 Both solve the same problem: give pods AWS permissions without static credentials.
 
-| | **IRSA** (2019) | **Pod Identity** (2023) |
-|--|-----------------|-------------------------|
-| **How it works** | OIDC token → STS → temp credentials | AWS agent on node → credentials injected |
-| **Setup** | Create OIDC provider + IAM trust policy per role | Install agent + one API call |
-| **Trust policy** | Unique per cluster (contains OIDC URL) | Universal (reusable across clusters) |
-| **Portability** | ✅ Works on any K8s (including Talos) | ❌ EKS only |
-| **Complexity** | Higher (OIDC provider, thumbprints) | Lower (no OIDC management) |
-| **Session tags** | Manual | Automatic |
+|                  | **IRSA** (2019)                                  | **Pod Identity** (2023)                  |
+|------------------|--------------------------------------------------|------------------------------------------|
+| **How it works** | OIDC token → STS → temp credentials              | AWS agent on node → credentials injected |
+| **Setup**        | Create OIDC provider + IAM trust policy per role | Install agent + one API call             |
+| **Trust policy** | Unique per cluster (contains OIDC URL)           | Universal (reusable across clusters)     |
+| **Portability**  | ✅ Works on any K8s (including Talos)             | ❌ EKS only                               |
+| **Complexity**   | Higher (OIDC provider, thumbprints)              | Lower (no OIDC management)               |
+| **Session tags** | Manual                                           | Automatic                                |
 
 **For Talos**: Only IRSA is available. Pod Identity requires EKS-specific agent.
 
@@ -164,51 +164,51 @@ metadata:
 
 ### Features Lost with Talos
 
-| Feature | EKS | Talos | Impact |
-|---------|-----|-------|--------|
-| **Managed Control Plane** | AWS manages | Self-managed | You handle upgrades |
-| **Pod Identity** | Native | Not available | Use IRSA instead |
-| **Fargate** | Serverless pods | Not available | Must manage nodes |
-| **Managed Node Groups** | AWS manages ASG | Self-managed | More Terraform |
-| **EKS Add-ons** | 1-click install | Manual Helm | Use Cilium + Helm |
-| **EKS Auto Mode** | Built-in Karpenter | Install yourself | Extra setup |
-| **Console Integration** | Full visibility | None | Use kubectl/Grafana |
-| **CloudWatch Insights** | Native | Manual Prometheus | More flexible |
-| **AWS Support** | Enterprise K8s support | Community only | No escalation |
+| Feature                   | EKS                    | Talos             | Impact              |
+|---------------------------|------------------------|-------------------|---------------------|
+| **Managed Control Plane** | AWS manages            | Self-managed      | You handle upgrades |
+| **Pod Identity**          | Native                 | Not available     | Use IRSA instead    |
+| **Fargate**               | Serverless pods        | Not available     | Must manage nodes   |
+| **Managed Node Groups**   | AWS manages ASG        | Self-managed      | More Terraform      |
+| **EKS Add-ons**           | 1-click install        | Manual Helm       | Use Cilium + Helm   |
+| **EKS Auto Mode**         | Built-in Karpenter     | Install yourself  | Extra setup         |
+| **Console Integration**   | Full visibility        | None              | Use kubectl/Grafana |
+| **CloudWatch Insights**   | Native                 | Manual Prometheus | More flexible       |
+| **AWS Support**           | Enterprise K8s support | Community only    | No escalation       |
 
 ### Features Gained with Talos
 
-| Feature | Benefit |
-|---------|---------|
-| **Immutable OS** | No drift, no shell access |
-| **No Control Plane Fee** | $0 vs $72/month per cluster |
-| **No Forced Upgrades** | Upgrade on your schedule |
-| **No Vendor Lock-in** | Portable to any cloud |
-| **Faster Boot** | ~2 min vs ~10+ min |
+| Feature                    | Benefit                        |
+|----------------------------|--------------------------------|
+| **Immutable OS**           | No drift, no shell access      |
+| **No Control Plane Fee**   | $0 vs $72/month per cluster    |
+| **No Forced Upgrades**     | Upgrade on your schedule       |
+| **No Vendor Lock-in**      | Portable to any cloud          |
+| **Faster Boot**            | ~2 min vs ~10+ min             |
 | **Smaller Attack Surface** | No systemd, no package manager |
-| **Full etcd Access** | Direct backup/restore |
-| **Cilium Native** | eBPF networking built-in |
+| **Full etcd Access**       | Direct backup/restore          |
+| **Cilium Native**          | eBPF networking built-in       |
 
 ### Features That Work the Same
 
-| Feature | Notes |
-|---------|-------|
-| **IRSA** | Works with manual OIDC setup |
-| **EBS CSI Driver** | Install via Helm |
-| **Cluster Autoscaler** | Works with ASGs |
-| **ALB/NLB** | AWS LB Controller works |
-| **S3, RDS, ElastiCache** | All AWS services accessible |
-| **Helm/kubectl** | Standard K8s API |
+| Feature                  | Notes                        |
+|--------------------------|------------------------------|
+| **IRSA**                 | Works with manual OIDC setup |
+| **EBS CSI Driver**       | Install via Helm             |
+| **Cluster Autoscaler**   | Works with ASGs              |
+| **ALB/NLB**              | AWS LB Controller works      |
+| **S3, RDS, ElastiCache** | All AWS services accessible  |
+| **Helm/kubectl**         | Standard K8s API             |
 
 ### Impact on Backstage Project
 
-| Gap | Workaround | Effort |
-|-----|------------|--------|
-| No Pod Identity | IRSA (this document) | Medium |
-| No Managed Nodes | ASG via Terraform module | Low |
-| No EKS Add-ons | Helm install Cilium, EBS CSI | Low |
-| No Console | Grafana + Hubble dashboards | Low |
-| No AWS Support | Siderolabs community + docs | Acceptable |
+| Gap              | Workaround                   | Effort     |
+|------------------|------------------------------|------------|
+| No Pod Identity  | IRSA (this document)         | Medium     |
+| No Managed Nodes | ASG via Terraform module     | Low        |
+| No EKS Add-ons   | Helm install Cilium, EBS CSI | Low        |
+| No Console       | Grafana + Hubble dashboards  | Low        |
+| No AWS Support   | Siderolabs community + docs  | Acceptable |
 
 ---
 

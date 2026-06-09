@@ -7,6 +7,7 @@ locals {
 }
 
 module "vpc" {
+  #checkov:skip=CKV_TF_1:Using versioned registry module, not commit hash
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.16"
 

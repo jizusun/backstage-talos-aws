@@ -15,3 +15,12 @@ rule "terraform_unused_declarations" {
 rule "terraform_documented_variables" {
   enabled = true
 }
+
+# Disable for child modules (providers inherited from root)
+rule "terraform_required_version" {
+  enabled = false
+}
+
+rule "terraform_required_providers" {
+  enabled = false
+}

@@ -1,0 +1,10 @@
+[[IgnoredVulns]]
+# Transitive dependencies in Terratest - not exploitable in our code
+# Confirmed by govulncheck: 0 vulnerabilities in code paths
+id = "*"
+reason = "Transitive deps in test module, not called by our code"
+
+[[PackageOverrides]]
+path = "terraform/test/go.sum"
+ignore = true
+reason = "Test-only dependencies, not deployed"

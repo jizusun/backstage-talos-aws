@@ -1,0 +1,91 @@
+name: branch-deploy
+
+on:
+  issue_comment:
+    types: [created]
+
+env:
+  WORKING_DIR: terraform/
+
+permissions:
+  pull-requests: write
+  deployments: write
+  contents: write
+  checks: read
+  statuses: read
+
+jobs:
+  deploy:
+    name: deploy
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    environment: production-secrets
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIR }}
+
+    steps:
+      - uses: github/branch-deploy@57784835271fa34a5441bf7231b345d079e774f7 # v11
+        id: branch-deploy
+        with:
+          trigger: ".deploy"
+          noop_trigger: ".noop"
+          environment: production
+          environment_targets: "production,staging,dev"
+          stable_branch: main
+
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        if: steps.branch-deploy.outputs.continue == 'true'
+        with:
+          ref: ${{ steps.branch-deploy.outputs.sha }}
+
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
+        if: steps.branch-deploy.outputs.continue == 'true'
+
+      - name: Terraform init
+        if: steps.branch-deploy.outputs.continue == 'true'
+        run: tofu init
+
+      - name: Terraform plan
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+        id: plan
+        run: tofu plan -no-color -var-file=environments/${{ steps.branch-deploy.outputs.environment }}.tfvars
+        continue-on-error: true
+
+      - name: Terraform apply
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
+        id: apply
+        run: tofu apply -no-color -auto-approve -var-file=environments/${{ steps.branch-deploy.outputs.environment }}.tfvars
+        continue-on-error: true
+
+      - name: Plan output
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+        env:
+          TF_STDOUT: ${{ steps.plan.outputs.stdout }}
+        run: |
+          TF_OUTPUT="\`\`\`terraform\n${TF_STDOUT}\n\`\`\`"
+          {
+            echo 'DEPLOY_MESSAGE<<EOF'
+            echo "${TF_OUTPUT}"
+            echo 'EOF'
+          } >> "$GITHUB_ENV"
+
+      - name: Apply output
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
+        env:
+          TF_STDOUT: ${{ steps.apply.outputs.stdout }}
+        run: |
+          TF_OUTPUT="\`\`\`terraform\n${TF_STDOUT}\n\`\`\`"
+          {
+            echo 'DEPLOY_MESSAGE<<EOF'
+            echo "${TF_OUTPUT}"
+            echo 'EOF'
+          } >> "$GITHUB_ENV"
+
+      - name: Check plan result
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' && steps.plan.outcome == 'failure' }}
+        run: exit 1
+
+      - name: Check apply result
+        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' && steps.apply.outcome == 'failure' }}
+        run: exit 1

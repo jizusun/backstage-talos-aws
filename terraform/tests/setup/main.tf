@@ -1,3 +1,8 @@
+# Shared setup for integration tests against kumo emulator
+terraform {
+  required_version = ">= 1.8.0"
+}
+
 provider "aws" {
   region                      = "us-east-1"
   access_key                  = "test"
@@ -11,11 +16,16 @@ provider "aws" {
   }
 }
 
-module "s3" {
-  source       = "../../../modules/s3"
-  cluster_name = "kumo-test"
+variable "cluster_name" {
+  type    = string
+  default = "kumo-test"
 }
 
-output "bucket_name" {
-  value = module.s3.bucket_name
+module "s3" {
+  source       = "../../modules/s3"
+  cluster_name = var.cluster_name
+}
+
+output "bucket_id" {
+  value = module.s3.bucket_id
 }
